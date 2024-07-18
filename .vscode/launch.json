@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "cwd": "${workspaceFolder}",
+            "executable": "./Debug/Step_Motor.elf",
+            "name": "Debug with ST-Link",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "none",
+            "servertype": "stlink",
+            "windows": {
+                "serverpath": "C:/ST/STM32CubeCLT/STLink-gdb-server/bin/ST-LINK_gdbserver.exe",
+                "serverArgs": ["--frequency 1000"],
+                "stm32cubeprogrammer": "C:/ST/STM32CubeCLT/STM32CubeProgrammer/bin",
+                "svdFile": "C:/ST/STM32CubeCLT/STMicroelectronics_CMSIS_SVD/STM32H407.svd"
+            },
+        },
+    ]
+}
