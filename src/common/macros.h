@@ -122,43 +122,25 @@
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to constrain values
-#ifdef __cplusplus
+#define NOLESS(v, n) \
+  do{ \
+    __typeof__(v) _n = (n); \
+    if (_n > v) v = _n; \
+  }while(0)
 
-  // C++11 solution that is standards compliant.
-  template <class V, class N> static inline constexpr void NOLESS(V& v, const N n) {
-    if (n > v) v = n;
-  }
-  template <class V, class N> static inline constexpr void NOMORE(V& v, const N n) {
-    if (n < v) v = n;
-  }
-  template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
-    if (n1 > v) v = n1;
-    else if (n2 < v) v = n2;
-  }
+#define NOMORE(v, n) \
+  do{ \
+    __typeof__(v) _n = (n); \
+    if (_n < v) v = _n; \
+  }while(0)
 
-#else
-
-  #define NOLESS(v, n) \
-    do{ \
-      __typeof__(v) _n = (n); \
-      if (_n > v) v = _n; \
-    }while(0)
-
-  #define NOMORE(v, n) \
-    do{ \
-      __typeof__(v) _n = (n); \
-      if (_n < v) v = _n; \
-    }while(0)
-
-  #define LIMIT(v, n1, n2) \
-    do{ \
-      __typeof__(v) _n1 = (n1); \
-      __typeof__(v) _n2 = (n2); \
-      if (_n1 > v) v = _n1; \
-      else if (_n2 < v) v = _n2; \
-    }while(0)
-
-#endif
+#define LIMIT(v, n1, n2) \
+  do{ \
+    __typeof__(v) _n1 = (n1); \
+    __typeof__(v) _n2 = (n2); \
+    if (_n1 > v) v = _n1; \
+    else if (_n2 < v) v = _n2; \
+  }while(0)
 
 // Macros to chain up to 14 conditions
 #define _DO_1(W,C,A)       (_##W##_1(A))
@@ -329,11 +311,8 @@
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 
 #undef ABS
-#ifdef __cplusplus
-  template <class T> static inline constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
-#else
-  #define ABS(a) ({__typeof__(a) _a = (a); _a >= 0 ? _a : -_a;})
-#endif
+
+#define ABS(a) ({__typeof__(a) _a = (a); _a >= 0 ? _a : -_a;})
 
 #define UNEAR_ZERO(x) ((x) < 0.000001f)
 #define NEAR_ZERO(x) WITHIN(x, -0.000001f, 0.000001f)
@@ -365,131 +344,19 @@
 #define _TWO_ARGS(_,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
 #define TWO_ARGS(V...) _TWO_ARGS(0,V,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,1,0)
 
-#ifdef __cplusplus
+#define __MIN_N(N,V...) MIN_##N(V)
+#define _MIN_N(N,V...)  __MIN_N(N,V)
+#define _MIN_N_REF()    _MIN_N
+#define _MIN(V...)      EVAL(_MIN_N(TWO_ARGS(V),V))
+#define MIN_2(a,b)      ((a)<(b)?(a):(b))
+#define MIN_3(a,V...)   MIN_2(a,DEFER2(_MIN_N_REF)()(TWO_ARGS(V),V))
 
-  #ifndef _MINMAX_H_
-  #define _MINMAX_H_
-
-    extern "C++" {
-
-      // C++11 solution that is standards compliant. Return type is deduced automatically
-      template <class L, class R> static inline constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
-        return lhs < rhs ? lhs : rhs;
-      }
-      template <class L, class R> static inline constexpr auto _MAX(const L lhs, const R rhs) -> decltype(lhs + rhs) {
-        return lhs > rhs ? lhs : rhs;
-      }
-      template<class T, class ... Ts> static inline constexpr const T _MIN(T V, Ts... Vs) { return _MIN(V, _MIN(Vs...)); }
-      template<class T, class ... Ts> static inline constexpr const T _MAX(T V, Ts... Vs) { return _MAX(V, _MAX(Vs...)); }
-
-    }
-
-  #endif
-
-  // Allow manipulating enumeration value like flags without ugly cast everywhere
-  #define ENUM_FLAGS(T) \
-    FORCE_INLINE constexpr T operator&(T x, T y) { return static_cast<T>(static_cast<int>(x) & static_cast<int>(y)); } \
-    FORCE_INLINE constexpr T operator|(T x, T y) { return static_cast<T>(static_cast<int>(x) | static_cast<int>(y)); } \
-    FORCE_INLINE constexpr T operator^(T x, T y) { return static_cast<T>(static_cast<int>(x) ^ static_cast<int>(y)); } \
-    FORCE_INLINE constexpr T operator~(T x)      { return static_cast<T>(~static_cast<int>(x)); } \
-    FORCE_INLINE T & operator&=(T &x, T y) { return x &= y; } \
-    FORCE_INLINE T & operator|=(T &x, T y) { return x |= y; } \
-    FORCE_INLINE T & operator^=(T &x, T y) { return x ^= y; }
-
-  // C++11 solution that is standard compliant. <type_traits> is not available on all platform
-  namespace Private {
-    template<bool, typename _Tp = void> struct enable_if { };
-    template<typename _Tp>              struct enable_if<true, _Tp> { typedef _Tp type; };
-
-    template<typename T, typename U> struct is_same { enum { value = false }; };
-    template<typename T> struct is_same<T, T> { enum { value = true }; };
-
-    template <typename T, typename ... Args> struct first_type_of { typedef T type; };
-    template <typename T> struct first_type_of<T> { typedef T type; };
-  }
-  // C++11 solution using SFINAE to detect the existence of a member in a class at compile time.
-  // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
-  #define HAS_MEMBER_IMPL(Member) \
-    namespace Private { \
-      template <typename Type, typename Yes=char, typename No=long> struct HasMember_ ## Member { \
-        template <typename C> static Yes& test( decltype(&C::Member) ) ; \
-        template <typename C> static No& test(...); \
-        enum { value = sizeof(test<Type>(0)) == sizeof(Yes) }; }; \
-    }
-
-  // Call the method if it exists, but do nothing if it does not. The method is detected at compile time.
-  // If the method exists, this is inlined and does not cost anything. Else, an "empty" wrapper is created, returning a default value
-  #define CALL_IF_EXISTS_IMPL(Return, Method, ...) \
-    HAS_MEMBER_IMPL(Method) \
-    namespace Private { \
-      template <typename T, typename ... Args> FORCE_INLINE typename enable_if<HasMember_ ## Method <T>::value, Return>::type Call_ ## Method(T * t, Args... a) { return static_cast<Return>(t->Method(a...)); } \
-                                                      _UNUSED static                                                  Return  Call_ ## Method(...) { return __VA_ARGS__; } \
-    }
-  #define CALL_IF_EXISTS(Return, That, Method, ...) \
-    static_cast<Return>(Private::Call_ ## Method(That, ##__VA_ARGS__))
-
-  // Compile-time string manipulation
-  namespace CompileTimeString {
-    // Simple compile-time parser to find the position of the end of a string
-    constexpr const char* findStringEnd(const char *str) {
-      return *str ? findStringEnd(str + 1) : str;
-    }
-
-    // Check whether a string contains a specific character
-    constexpr bool contains(const char *str, const char ch) {
-      return *str == ch ? true : (*str ? contains(str + 1, ch) : false);
-    }
-    // Find the last position of the specific character (should be called with findStringEnd)
-    constexpr const char* findLastPos(const char *str, const char ch) {
-      return *str == ch ? (str + 1) : findLastPos(str - 1, ch);
-    }
-    // Compile-time evaluation of the last part of a file path
-    // Typically used to shorten the path to file in compiled strings
-    // CompileTimeString::baseName(__FILE__) returns "macros.h" and not /path/to/Marlin/src/core/macros.h
-    constexpr const char* baseName(const char *str) {
-      return contains(str, '/') ? findLastPos(findStringEnd(str), '/') : str;
-    }
-
-    // Find the first occurrence of a character in a string (or return the last position in the string)
-    constexpr const char* findFirst(const char *str, const char ch) {
-      return *str == ch || *str == 0 ? (str + 1) : findFirst(str + 1, ch);
-    }
-    // Compute the string length at compile time
-    constexpr unsigned stringLen(const char *str) {
-      return *str == 0 ? 0 : 1 + stringLen(str + 1);
-    }
-  }
-
-  #define ONLY_FILENAME CompileTimeString::baseName(__FILE__)
-  /** Get the templated type name. This does not depends on RTTI, but on the preprocessor, so it should be quite safe to use even on old compilers.
-      WARNING: DO NOT RENAME THIS FUNCTION (or change the text inside the function to match what the preprocessor will generate)
-      The name is chosen very short since the binary will store "const char* gtn(T*) [with T = YourTypeHere]" so avoid long function name here */
-  template <typename T>
-  inline const char* gtn(T*) {
-    // It works on GCC by instantiating __PRETTY_FUNCTION__ and parsing the result. So the syntax here is very limited to GCC output
-    constexpr unsigned verboseChatLen = sizeof("const char* gtn(T*) [with T = ") - 1;
-    static char templateType[sizeof(__PRETTY_FUNCTION__) - verboseChatLen] = {};
-    __builtin_memcpy(templateType, __PRETTY_FUNCTION__ + verboseChatLen, sizeof(__PRETTY_FUNCTION__) - verboseChatLen - 2);
-    return templateType;
-  }
-
-#else
-
-  #define __MIN_N(N,V...) MIN_##N(V)
-  #define _MIN_N(N,V...)  __MIN_N(N,V)
-  #define _MIN_N_REF()    _MIN_N
-  #define _MIN(V...)      EVAL(_MIN_N(TWO_ARGS(V),V))
-  #define MIN_2(a,b)      ((a)<(b)?(a):(b))
-  #define MIN_3(a,V...)   MIN_2(a,DEFER2(_MIN_N_REF)()(TWO_ARGS(V),V))
-
-  #define __MAX_N(N,V...) MAX_##N(V)
-  #define _MAX_N(N,V...)  __MAX_N(N,V)
-  #define _MAX_N_REF()    _MAX_N
-  #define _MAX(V...)      EVAL(_MAX_N(TWO_ARGS(V),V))
-  #define MAX_2(a,b)      ((a)>(b)?(a):(b))
-  #define MAX_3(a,V...)   MAX_2(a,DEFER2(_MAX_N_REF)()(TWO_ARGS(V),V))
-
-#endif
+#define __MAX_N(N,V...) MAX_##N(V)
+#define _MAX_N(N,V...)  __MAX_N(N,V)
+#define _MAX_N_REF()    _MAX_N
+#define _MAX(V...)      EVAL(_MAX_N(TWO_ARGS(V),V))
+#define MAX_2(a,b)      ((a)>(b)?(a):(b))
+#define MAX_3(a,V...)   MAX_2(a,DEFER2(_MAX_N_REF)()(TWO_ARGS(V),V))
 
 // Macros for adding
 #define INC_0   1
