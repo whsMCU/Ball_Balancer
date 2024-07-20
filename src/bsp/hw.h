@@ -20,6 +20,7 @@
 #include "files.h"
 #include "spi.h"
 #include "gpio.h"
+#include "adc.h"
 #include "rtc.h"
 #include "dma.h"
 #include "tim.h"

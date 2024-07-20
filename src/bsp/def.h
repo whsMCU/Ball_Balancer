@@ -25,6 +25,9 @@
 #define _DEF_UART5          5
 #define _DEF_UART6          6
 
+#define _DEF_ADC1             0
+#define _DEF_ADC2             1
+
 #define _DEF_SPI1             0
 #define _DEF_SPI2             1
 #define _DEF_SPI3             2

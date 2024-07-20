@@ -11,11 +11,11 @@
 
 static void TimerCallbackISR(void)
 {
-  if (distanceToGo(&stepper_X) == 0)
+  if (distanceToGo(&stepper_A) == 0)
   {
-    moveTo(&stepper_X, -currentPosition(&stepper_X));
+    moveTo(&stepper_A, -currentPosition(&stepper_A));
   }
-  run(&stepper_X);
+  run(&stepper_A);
 }
 
 bool stepper_Init(AccelStepper *stepper, uint8_t enablePin, uint8_t dirPin, uint8_t stepPin)

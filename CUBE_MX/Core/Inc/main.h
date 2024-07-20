@@ -63,10 +63,6 @@ void Error_Handler(void);
 #define StepX_DIR_GPIO_Port GPIOE
 #define StepX_EN_Pin GPIO_PIN_4
 #define StepX_EN_GPIO_Port GPIOE
-#define StepE1_DIR_Pin GPIO_PIN_1
-#define StepE1_DIR_GPIO_Port GPIOA
-#define StepE1_EN_Pin GPIO_PIN_3
-#define StepE1_EN_GPIO_Port GPIOA
 #define BEEPER_Pin GPIO_PIN_5
 #define BEEPER_GPIO_Port GPIOC
 #define BTN_EN1_Pin GPIO_PIN_8
@@ -89,8 +85,6 @@ void Error_Handler(void);
 #define LCD_D7_GPIO_Port GPIOD
 #define LCD_EN_Pin GPIO_PIN_13
 #define LCD_EN_GPIO_Port GPIOD
-#define StepE1_STEP_Pin GPIO_PIN_15
-#define StepE1_STEP_GPIO_Port GPIOD
 #define LCD_RS_Pin GPIO_PIN_6
 #define LCD_RS_GPIO_Port GPIOC
 #define StepE0_DIR_Pin GPIO_PIN_3

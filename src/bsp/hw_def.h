@@ -24,6 +24,9 @@
 #define _USE_HW_TIMER
 #define _USE_HW_FLASH
 
+#define _USE_HW_ADC
+#define      HW_ADC_MAX_CH          2
+
 #define _USE_HW_SPI
 #define      HW_SPI_MAX_CH          2
 

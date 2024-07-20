@@ -19,7 +19,7 @@
 #include "main.h"
 #include "TouchScreen.h"
 
-AccelStepper stepper_X;
+AccelStepper stepper_A;
 
 void lv_draw_chart(lv_chart_series_t * ser1, lv_chart_series_t * ser2)
 {
@@ -29,8 +29,8 @@ void lv_draw_chart(lv_chart_series_t * ser1, lv_chart_series_t * ser2)
   if((curr_tick - last_tick) >= (500)) {
       last_tick = curr_tick;
 
-      lv_chart_set_next_value(ui_SpeedStepChart, ser1, stepper_X._targetPos);
-      lv_chart_set_next_value(ui_SpeedStepChart, ser2, stepper_X._currentPos);
+      lv_chart_set_next_value(ui_SpeedStepChart, ser1, stepper_A._targetPos);
+      lv_chart_set_next_value(ui_SpeedStepChart, ser2, stepper_A._currentPos);
 
       //lv_chart_refresh(ui_SpeedStepChart); /*Required after direct set*/
   }
@@ -62,10 +62,10 @@ int main(void)
   lv_chart_series_t * ui_SpeedStepChart_series_Step = lv_chart_add_series(ui_SpeedStepChart, lv_color_hex(0x0005FF),
                                                                            LV_CHART_AXIS_SECONDARY_Y);
 
-  stepper_Init(&stepper_X, StepX_EN, StepX_DIR, StepX_STEP);
-  setMaxSpeed(&stepper_X, 2000);
-  setAcceleration(&stepper_X, 500);
-  moveTo(&stepper_X, 1600);
+  stepper_Init(&stepper_A, StepA_EN, StepA_DIR, StepA_STEP);
+  setMaxSpeed(&stepper_A, 2000);
+  setAcceleration(&stepper_A, 500);
+  moveTo(&stepper_A, 1600);
 
 
   while (1)
