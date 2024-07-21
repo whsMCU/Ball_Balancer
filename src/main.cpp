@@ -17,7 +17,12 @@
   */
 
 #include "main.h"
+
 #include "TouchScreen.h"
+#include "InverseKinematics.h"
+
+Machine machine(2, 3.125, 1.75, 3.669291339);     //(d, e, f, g) object to define the lengths of the machine
+TouchScreen ts = TouchScreen(ADC_Touch_xm, ADC_TouchY_ym, ADC_Touch_xp, ADC_Touch_yp, 0);  //touch screen pins (XGND, YGND, X5V, Y5V)
 
 AccelStepper stepper_A;
 
@@ -95,6 +100,7 @@ void hwInit(void)
   timBegin(_DEF_TIM1);
   timBegin(_DEF_TIM2);
   gpioInit();
+  adcInit();
   buttonInit();
   flashInit();
   MX_DMA_Init();

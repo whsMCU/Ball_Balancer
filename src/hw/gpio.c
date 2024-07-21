@@ -35,8 +35,8 @@ const gpio_tbl_t gpio_tbl[GPIO_MAX_CH] =
   {GPIOB, GPIO_PIN_3,  _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_HIGH},    //  9. StepE0_EN
 	{GPIOD, GPIO_PIN_6,  _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_LOW },    // 10. StepE0_STEP
 	{GPIOD, GPIO_PIN_3,  _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_LOW },    // 11. StepE0_DIR
-	{GPIOA, GPIO_PIN_3,  _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_LOW},     // 12. ADC_TouchScreen
-	{GPIOA, GPIO_PIN_1,  _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_LOW },    // 14. ADC_TouchScreen
+	{GPIOA, GPIO_PIN_3,  _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_LOW},     // 12. ADC_Touch_xp
+	{GPIOA, GPIO_PIN_1,  _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_LOW },    // 14. ADC_Touch_yp
 	{GPIOD, GPIO_PIN_11, _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_HIGH},    // 15. TFT_CS
 	{GPIOD, GPIO_PIN_10, _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_HIGH},    // 16. TFT_DC
 	{GPIOC, GPIO_PIN_6,  _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_HIGH},    // 17. TFT_RST
@@ -44,6 +44,8 @@ const gpio_tbl_t gpio_tbl[GPIO_MAX_CH] =
 	{GPIOE, GPIO_PIN_14, _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_HIGH},    // 19. Toutch_CS
 	{GPIOC, GPIO_PIN_5,  _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_LOW },    // 20. BEEPER
 	{GPIOB, GPIO_PIN_12,  _DEF_OUTPUT,  GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_LOW },    // 21. FLASH_CS
+  {GPIOC, GPIO_PIN_0,  _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_LOW},     // 22. ADC_Touch_xm
+  {GPIOC, GPIO_PIN_1,  _DEF_OUTPUT,   GPIO_PIN_SET,   GPIO_PIN_RESET, _DEF_LOW },    // 23. ADC_Touch_ym
 };
 
 
@@ -142,6 +144,11 @@ bool gpioPinMode(uint8_t ch, uint8_t mode)
       GPIO_InitStruct.Pull = GPIO_NOPULL;
       GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
       GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
+      break;
+
+    case _DEF_INPUT_ANALOG:
+      GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+      GPIO_InitStruct.Pull = GPIO_NOPULL;
       break;
   }
 

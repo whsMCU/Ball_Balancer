@@ -47,5 +47,6 @@
 #define _DEF_OUTPUT_PULLUP    5
 #define _DEF_OUTPUT_PULLDOWN  6
 #define _DEF_INPUT_AF_PP      7
+#define _DEF_INPUT_ANALOG      8
 
 #endif /* SRC_COMMON_DEF_H_ */
