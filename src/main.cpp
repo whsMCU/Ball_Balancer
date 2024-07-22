@@ -33,7 +33,7 @@ AccelStepper stepperC(1, StepC_STEP, StepC_DIR);  //(driver type, STEP, DIR) Dri
 MultiStepper steppers;           // Create instance of MultiStepper
 
 //stepper motor variables
-long pos[3] = {400, 400, 400};                            // An array to store the target positions for each stepper motor
+long pos[3] = {3200, 3200, 3200};                            // An array to store the target positions for each stepper motor
 
 //void lv_draw_chart(lv_chart_series_t * ser1, lv_chart_series_t * ser2)
 //{
