@@ -10,6 +10,10 @@
 
 #include "hw.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #ifdef _USE_HW_GPIO
 
@@ -51,6 +55,10 @@ bool gpioPinRead(uint8_t ch);
 void gpioPinToggle(uint8_t ch);
 
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* SRC_COMMON_HW_INCLUDE_GPIO_H_ */

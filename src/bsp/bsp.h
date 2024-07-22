@@ -11,6 +11,11 @@
 
 #include "stm32f4xx_hal.h"
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //#define _USE_LOG_PRINT    0
 //
 //#if _USE_LOG_PRINT
@@ -40,5 +45,9 @@ typedef uint32_t millis_t;
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
 
 #define _BV(n) (1<<(n))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SRC_BSP_BSP_H_ */

@@ -37,7 +37,7 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-extern AccelStepper stepper_A;
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

@@ -130,7 +130,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/hw/i2c.c|src/drivers/lvgl/tests|src/hw/sd.c|CUBE_MX|Step_Motor 참고자료|src/hw/rtc.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="src/drivers/stepper/temp|src/hw/i2c.c|src/drivers/lvgl/tests|src/hw/sd.c|CUBE_MX|Step_Motor 참고자료|src/hw/rtc.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -232,7 +232,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/hw/i2c.c|src/drivers/lvgl/tests|src/hw/sd.c|CUBE_MX|Step_Motor 참고자료|src/hw/rtc.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="src/drivers/stepper/temp|src/hw/i2c.c|src/drivers/lvgl/tests|src/hw/sd.c|CUBE_MX|Step_Motor 참고자료|src/hw/rtc.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

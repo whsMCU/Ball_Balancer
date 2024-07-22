@@ -20,26 +20,35 @@
 
 #include "TouchScreen.h"
 #include "InverseKinematics.h"
+#include "AccelStepper.h"
+#include "MultiStepper.h"
 
 Machine machine(2, 3.125, 1.75, 3.669291339);     //(d, e, f, g) object to define the lengths of the machine
 TouchScreen ts = TouchScreen(ADC_Touch_xm, ADC_TouchY_ym, ADC_Touch_xp, ADC_Touch_yp, 0);  //touch screen pins (XGND, YGND, X5V, Y5V)
 
-AccelStepper stepper_A;
+//stepper motors
+AccelStepper stepperA(1, StepA_STEP, StepA_DIR);  //(driver type, STEP, DIR) Driver A
+AccelStepper stepperB(1, StepB_STEP, StepB_DIR);  //(driver type, STEP, DIR) Driver B
+AccelStepper stepperC(1, StepC_STEP, StepC_DIR);  //(driver type, STEP, DIR) Driver C
+MultiStepper steppers;           // Create instance of MultiStepper
 
-void lv_draw_chart(lv_chart_series_t * ser1, lv_chart_series_t * ser2)
-{
-  static uint32_t last_tick = 0;
-  uint32_t curr_tick = millis();
+//stepper motor variables
+long pos[3] = {400, 400, 400};                            // An array to store the target positions for each stepper motor
 
-  if((curr_tick - last_tick) >= (500)) {
-      last_tick = curr_tick;
-
-      lv_chart_set_next_value(ui_SpeedStepChart, ser1, stepper_A._targetPos);
-      lv_chart_set_next_value(ui_SpeedStepChart, ser2, stepper_A._currentPos);
-
-      //lv_chart_refresh(ui_SpeedStepChart); /*Required after direct set*/
-  }
-}
+//void lv_draw_chart(lv_chart_series_t * ser1, lv_chart_series_t * ser2)
+//{
+//  static uint32_t last_tick = 0;
+//  uint32_t curr_tick = millis();
+//
+//  if((curr_tick - last_tick) >= (500)) {
+//      last_tick = curr_tick;
+//
+//      //lv_chart_set_next_value(ui_SpeedStepChart, ser1, stepper_A._targetPos);
+//      //lv_chart_set_next_value(ui_SpeedStepChart, ser2, stepper_A._currentPos);
+//
+//      //lv_chart_refresh(ui_SpeedStepChart); /*Required after direct set*/
+//  }
+//}
 
 void SystemClock_Config(void);
 
@@ -52,34 +61,34 @@ int main(void)
   /* USER CODE BEGIN SysInit */
   hwInit();
 
-  lv_init();
+  //lv_init();
 
-  lv_port_disp_init();
-  lv_port_indev_init();
+  //lv_port_disp_init();
+  //lv_port_indev_init();
 
   //LCD_Draw_Logo();
   //HAL_Delay(2000);
 
-  ui_init();
+  //ui_init();
 
-  lv_chart_series_t * ui_SpeedStepChart_series_Target = lv_chart_add_series(ui_SpeedStepChart, lv_color_hex(0xFF0000),
-                                                                           LV_CHART_AXIS_PRIMARY_Y);
-  lv_chart_series_t * ui_SpeedStepChart_series_Step = lv_chart_add_series(ui_SpeedStepChart, lv_color_hex(0x0005FF),
-                                                                           LV_CHART_AXIS_SECONDARY_Y);
+  //lv_chart_series_t * ui_SpeedStepChart_series_Target = lv_chart_add_series(ui_SpeedStepChart, lv_color_hex(0xFF0000),
+  //                                                                         LV_CHART_AXIS_PRIMARY_Y);
+  //lv_chart_series_t * ui_SpeedStepChart_series_Step = lv_chart_add_series(ui_SpeedStepChart, lv_color_hex(0x0005FF),
+  //                                                                         LV_CHART_AXIS_SECONDARY_Y);
 
-  stepper_Init(&stepper_A, StepA_EN, StepA_DIR, StepA_STEP);
-  setMaxSpeed(&stepper_A, 2000);
-  setAcceleration(&stepper_A, 500);
-  moveTo(&stepper_A, 1600);
+//  stepper_Init(&stepper_A, StepA_EN, StepA_DIR, StepA_STEP);
+//  setMaxSpeed(&stepper_A, 2000);
+//  setAcceleration(&stepper_A, 500);
+//  moveTo(&stepper_A, 1600);
 
 
   while (1)
   {
 	  cliMain();
-	  lv_draw_chart(ui_SpeedStepChart_series_Target, ui_SpeedStepChart_series_Step);
+	  //lv_draw_chart(ui_SpeedStepChart_series_Target, ui_SpeedStepChart_series_Step);
 
-	  lv_timer_handler();
-	  HAL_Delay(5);
+	  //lv_timer_handler();
+	  //HAL_Delay(5);
   }
 
 }
@@ -113,6 +122,26 @@ void hwInit(void)
 //  }
 
   cliOpen(_DEF_USB, 115200);
+
+  //Set iniial maximum speed value for the steppers (steps/sec)
+  stepperA.setMaxSpeed(200);
+  stepperB.setMaxSpeed(200);
+  stepperC.setMaxSpeed(200);
+  // Adding the steppers to the steppersControl instance for multi stepper control
+  steppers.addStepper(stepperA);
+  steppers.addStepper(stepperB);
+  steppers.addStepper(stepperC);
+  //Enable pin
+  gpioPinMode(StepA_EN, _DEF_OUTPUT);    //define enable pin as output
+  gpioPinMode(StepB_EN, _DEF_OUTPUT);    //define enable pin as output
+  gpioPinMode(StepC_EN, _DEF_OUTPUT);    //define enable pin as output
+  gpioPinWrite(StepA_EN, _DEF_LOW);  //sets the drivers on initially
+  gpioPinWrite(StepB_EN, _DEF_LOW);  //sets the drivers on initially
+  gpioPinWrite(StepC_EN, _DEF_LOW);  //sets the drivers on initially
+  delay(1000);             //small delay to allow the user to reset the platform
+  //Movemement
+  steppers.moveTo(pos);  // Calculates the required speed for all motors
+  steppers.runSpeedToPosition();  // blocks until all steppers reach their target position
 }
 
 /**

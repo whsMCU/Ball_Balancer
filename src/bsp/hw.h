@@ -37,7 +37,7 @@
 #include "lv_port_indev.h"
 #include "ui.h"
 #include "W25Qxx.h"
-#include "stepper.h"
+//#include "stepper.h"
 #include "cli_gui.h"
 #include "log.h"
 
