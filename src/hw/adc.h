@@ -14,6 +14,8 @@
 
 #define ADC_MAX_CH          HW_ADC_MAX_CH
 
+extern ADC_HandleTypeDef hadc1;
+
 bool     adcInit(void);
 bool     adcOpen(uint8_t ch);
 bool     adcClose(uint8_t ch);
