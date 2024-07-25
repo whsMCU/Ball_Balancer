@@ -102,7 +102,20 @@ int main(void)
 
   while (1)
   {
-    PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
+    //PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
+    // Change direction at the limits
+    if (stepperA.distanceToGo() == 0)
+      stepperA.moveTo(-stepperA.currentPosition());
+
+    if (stepperB.distanceToGo() == 0)
+      stepperB.moveTo(-stepperA.currentPosition());
+
+    if (stepperC.distanceToGo() == 0)
+      stepperC.moveTo(-stepperC.currentPosition());
+
+    stepperA.run();
+    stepperB.run();
+    stepperC.run();
 	  cliMain();
 	  //lv_draw_chart(ui_SpeedStepChart_series_Target, ui_SpeedStepChart_series_Step);
 
@@ -162,8 +175,17 @@ void hwInit(void)
   gpioPinWrite(StepB_EN, _DEF_LOW);  //sets the drivers on initially
   gpioPinWrite(StepC_EN, _DEF_LOW);  //sets the drivers on initially
 
-  moveTo(4.25, 0, 0);             //moves the platform to the home position
-  steppers.runSpeedToPosition();  //blocks until the platform is at the home position
+//  moveTo(4.25, 0, 0);             //moves the platform to the home position
+//  steppers.runSpeedToPosition();  //blocks until the platform is at the home position
+
+  stepperA.setAcceleration(200);
+  stepperB.setAcceleration(200);
+  stepperC.setAcceleration(200);
+
+  stepperA.moveTo(3200);
+  stepperB.moveTo(3200);
+  stepperC.moveTo(3200);
+
 }
 
 //moves/positions the platform with the given parameters
