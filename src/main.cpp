@@ -102,7 +102,7 @@ int main(void)
 
   while (1)
   {
-    //PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
+    PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
     // Change direction at the limits
     if (stepperA.distanceToGo() == 0)
       stepperA.moveTo(-stepperA.currentPosition());
