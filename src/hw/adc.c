@@ -69,14 +69,14 @@ bool adcOpen(uint8_t ch)
       p_adc->h_sConfig = &sConfig;
       p_adc->h_adc->Instance = ADC1;
       p_adc->h_adc->Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
-      p_adc->h_adc->Init.Resolution = ADC_RESOLUTION_12B;
+      p_adc->h_adc->Init.Resolution = ADC_RESOLUTION_10B;
       p_adc->h_adc->Init.ScanConvMode = DISABLE;
       p_adc->h_adc->Init.ContinuousConvMode = DISABLE;
       p_adc->h_adc->Init.DiscontinuousConvMode = DISABLE;
       p_adc->h_adc->Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
       p_adc->h_adc->Init.ExternalTrigConv = ADC_SOFTWARE_START;
       p_adc->h_adc->Init.DataAlign = ADC_DATAALIGN_RIGHT;
-      p_adc->h_adc->Init.NbrOfConversion = 1; //0?
+      p_adc->h_adc->Init.NbrOfConversion = 0; //0?
       p_adc->h_adc->Init.DMAContinuousRequests = DISABLE;
       p_adc->h_adc->Init.EOCSelection = ADC_EOC_SINGLE_CONV;
 
@@ -121,7 +121,7 @@ bool adcOpen(uint8_t ch)
       p_adc->h_sConfig = &sConfig;
       p_adc->h_adc->Instance = ADC1;
       p_adc->h_adc->Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
-      p_adc->h_adc->Init.Resolution = ADC_RESOLUTION_12B;
+      p_adc->h_adc->Init.Resolution = ADC_RESOLUTION_10B;
       p_adc->h_adc->Init.ScanConvMode = DISABLE;
       p_adc->h_adc->Init.ContinuousConvMode = DISABLE;
       p_adc->h_adc->Init.DiscontinuousConvMode = DISABLE;

@@ -93,9 +93,9 @@ TSPoint TouchScreen::getPoint(void) {
 #endif
 
   for (i = 0; i < NUMSAMPLES; i++) {
-    adcOpen(_yp);
-    samples[i] = adcRead(_yp);
-    adcClose(_yp);
+    adcOpen(0);
+    samples[i] = adcRead(0);
+    adcClose(0);
   }
 
 #if NUMSAMPLES > 2
@@ -112,6 +112,7 @@ TSPoint TouchScreen::getPoint(void) {
 #endif
 
   x = (1023 - samples[NUMSAMPLES / 2]);
+
   gpioPinMode(_xp, _DEF_INPUT);
   gpioPinMode(_xm, _DEF_INPUT);
   gpioPinMode(_yp, _DEF_OUTPUT);
@@ -130,9 +131,9 @@ TSPoint TouchScreen::getPoint(void) {
 #endif
 
   for (i = 0; i < NUMSAMPLES; i++) {
-    adcOpen(_xm);
-    samples[i] = adcRead(_xm);
-    adcClose(_xm);
+    adcOpen(1);
+    samples[i] = adcRead(1);
+    adcClose(1);
   }
 
 #if NUMSAMPLES > 2
@@ -164,13 +165,13 @@ TSPoint TouchScreen::getPoint(void) {
   gpioPinWrite(_xp, _DEF_LOW);
 #endif
 
-  adcOpen(_xm);
-  int z1 = adcRead(_xm);
-  adcClose(_xm);
+  adcOpen(1);
+  int z1 = adcRead(1);
+  adcClose(1);
 
-  adcOpen(_yp);
-  int z2 = adcRead(_yp);
-  adcClose(_yp);
+  adcOpen(0);
+  int z2 = adcRead(0);
+  adcClose(0);
 
   if (_rxplate != 0) {
     // now read the x
@@ -234,9 +235,9 @@ int TouchScreen::readTouchX(void) {
   gpioPinWrite(_xp, _DEF_HIGH);
   gpioPinWrite(_xm, _DEF_LOW);
 
-  adcOpen(_yp);
-  int tmp = adcRead(_yp);
-  adcClose(_yp);
+  adcOpen(0);
+  int tmp = adcRead(0);
+  adcClose(0);
 
   return (1023 - tmp);
 }
@@ -259,9 +260,9 @@ int TouchScreen::readTouchY(void) {
   gpioPinWrite(_yp, _DEF_HIGH);
   gpioPinWrite(_ym, _DEF_LOW);
 
-  adcOpen(_xm);
-  int tmp = adcRead(_xm);
-  adcClose(_xm);
+  adcOpen(1);
+  int tmp = adcRead(1);
+  adcClose(1);
 
   return (1023 - tmp);
 }
@@ -285,13 +286,13 @@ uint16_t TouchScreen::pressure(void) {
   gpioPinMode(_yp, _DEF_INPUT);
   gpioPinWrite(_yp, _DEF_LOW);
 
-  adcOpen(_xm);
-  int z1 = adcRead(_xm);
-  adcClose(_xm);
+  adcOpen(1);
+  int z1 = adcRead(1);
+  adcClose(1);
 
-  adcOpen(_yp);
-  int z2 = adcRead(_yp);
-  adcClose(_yp);
+  adcOpen(0);
+  int z2 = adcRead(0);
+  adcClose(0);
 
   if (_rxplate != 0) {
     // now read the x

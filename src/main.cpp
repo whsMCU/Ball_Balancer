@@ -24,7 +24,7 @@
 #include "MultiStepper.h"
 
 Machine machine(2, 3.125, 1.75, 3.669291339);     //(d, e, f, g) object to define the lengths of the machine
-TouchScreen ts = TouchScreen(ADC_Touch_xm, ADC_TouchY_ym, ADC_Touch_xp, ADC_Touch_yp, 0);  //touch screen pins (XGND, YGND, X5V, Y5V)
+TouchScreen ts = TouchScreen(Touch_xp, ADC_Touch_yp, ADC_Touch_xm, Touch_ym, 300);  //touch screen pins (XGND, YGND, X5V, Y5V)
 
 //stepper motors
 AccelStepper stepperA(1, StepA_STEP, StepA_DIR);  //(driver type, STEP, DIR) Driver A
@@ -103,19 +103,7 @@ int main(void)
   while (1)
   {
     PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
-    // Change direction at the limits
-    if (stepperA.distanceToGo() == 0)
-      stepperA.moveTo(-stepperA.currentPosition());
 
-    if (stepperB.distanceToGo() == 0)
-      stepperB.moveTo(-stepperA.currentPosition());
-
-    if (stepperC.distanceToGo() == 0)
-      stepperC.moveTo(-stepperC.currentPosition());
-
-    stepperA.run();
-    stepperB.run();
-    stepperC.run();
 	  cliMain();
 	  //lv_draw_chart(ui_SpeedStepChart_series_Target, ui_SpeedStepChart_series_Step);
 
@@ -155,10 +143,6 @@ void hwInit(void)
 
   cliOpen(_DEF_USB, 115200);
 
-  //Set iniial maximum speed value for the steppers (steps/sec)
-  stepperA.setMaxSpeed(200);
-  stepperB.setMaxSpeed(200);
-  stepperC.setMaxSpeed(200);
   // Adding the steppers to the steppersControl instance for multi stepper control
   steppers.addStepper(stepperA);
   steppers.addStepper(stepperB);
@@ -175,17 +159,8 @@ void hwInit(void)
   gpioPinWrite(StepB_EN, _DEF_LOW);  //sets the drivers on initially
   gpioPinWrite(StepC_EN, _DEF_LOW);  //sets the drivers on initially
 
-//  moveTo(4.25, 0, 0);             //moves the platform to the home position
-//  steppers.runSpeedToPosition();  //blocks until the platform is at the home position
-
-  stepperA.setAcceleration(200);
-  stepperB.setAcceleration(200);
-  stepperC.setAcceleration(200);
-
-  stepperA.moveTo(3200);
-  stepperB.moveTo(3200);
-  stepperC.moveTo(3200);
-
+  moveTo(4.25, 0, 0);             //moves the platform to the home position
+  steppers.runSpeedToPosition();  //blocks until the platform is at the home position
 }
 
 //moves/positions the platform with the given parameters
@@ -227,9 +202,10 @@ void moveTo(double hz, double nx, double ny) {
     steppers.run();  //runs stepper to target position (increments at most 1 step per call)
   }
 }
+TSPoint p;
 //takes in an X and Y setpoint/position and moves the ball to that position
 void PID(double setpointX, double setpointY) {
-  TSPoint p = ts.getPoint();  //measure X and Y positions
+  p = ts.getPoint();  //measure X and Y positions
   //if the ball is detected (the x position will not be 0)
   if (p.x != 0) {
     detected = 1;
