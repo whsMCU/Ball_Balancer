@@ -23,7 +23,7 @@ extern ADC_HandleTypeDef hadc1;
 bool     adcInit(void);
 bool     adcOpen(uint8_t ch);
 bool     adcClose(uint8_t ch);
-uint16_t adcRead(uint8_t ch);
+uint32_t analogRead(uint8_t ch);
 
 #endif
 

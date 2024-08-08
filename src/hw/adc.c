@@ -25,6 +25,7 @@ typedef struct
 {
   bool is_open;
   bool is_adc_done;
+  uint8_t adc_ch;
 
   ADC_HandleTypeDef *h_adc;
   ADC_ChannelConfTypeDef *h_sConfig;
@@ -76,7 +77,7 @@ bool adcOpen(uint8_t ch)
       p_adc->h_adc->Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
       p_adc->h_adc->Init.ExternalTrigConv = ADC_SOFTWARE_START;
       p_adc->h_adc->Init.DataAlign = ADC_DATAALIGN_RIGHT;
-      p_adc->h_adc->Init.NbrOfConversion = 0; //0?
+      p_adc->h_adc->Init.NbrOfConversion = 1;
       p_adc->h_adc->Init.DMAContinuousRequests = DISABLE;
       p_adc->h_adc->Init.EOCSelection = ADC_EOC_SINGLE_CONV;
 
@@ -163,11 +164,8 @@ bool adcOpen(uint8_t ch)
       }
       //logPrintf("[%s] adc2_Init()\r\n", ret ? "OK":"NG");
       break;
-
   }
-
   return ret;
-
 }
 
 bool adcClose(uint8_t ch)
@@ -208,12 +206,25 @@ bool adcClose(uint8_t ch)
   return ret;
 }
 
-uint16_t adcRead(uint8_t ch)
+uint32_t analogRead(uint8_t ch)
 {
   uint16_t uhADCxConvertedValue = 0;
   adc_t *p_adc = &adc_tbl[ch];
 
   switch(ch)
+  {
+    case ADC_Touch_yp:
+      p_adc->adc_ch = 0;
+      break;
+
+    case ADC_Touch_xm:
+      p_adc->adc_ch = 1;
+      break;
+  }
+
+  adcOpen(p_adc->adc_ch);
+
+  switch(p_adc->adc_ch)
   {
     case _DEF_ADC1:
       /*##-3- Start the conversion process ####################*/
@@ -241,8 +252,6 @@ uint16_t adcRead(uint8_t ch)
         /* Stop Conversation Error */
         return 0;
       }
-
-      adcClose(ch);
       break;
 
     case _DEF_ADC2:
@@ -271,11 +280,9 @@ uint16_t adcRead(uint8_t ch)
         /* Stop Conversation Error */
         return 0;
       }
-
-      adcClose(ch);
       break;
-
   }
+  adcClose(p_adc->adc_ch);
   return uhADCxConvertedValue;
 }
 

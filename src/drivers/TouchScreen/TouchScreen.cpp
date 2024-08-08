@@ -93,9 +93,7 @@ TSPoint TouchScreen::getPoint(void) {
 #endif
 
   for (i = 0; i < NUMSAMPLES; i++) {
-    adcOpen(0);
-    samples[i] = adcRead(0);
-    adcClose(0);
+    samples[i] = analogRead(_yp);
   }
 
 #if NUMSAMPLES > 2
@@ -122,8 +120,8 @@ TSPoint TouchScreen::getPoint(void) {
   *ym_port &= ~ym_pin;
   *yp_port |= yp_pin;
 #else
-  gpioPinWrite(_yp, _DEF_HIGH);
   gpioPinWrite(_ym, _DEF_LOW);
+  gpioPinWrite(_yp, _DEF_HIGH);
 #endif
 
 #ifdef __arm__
@@ -131,9 +129,7 @@ TSPoint TouchScreen::getPoint(void) {
 #endif
 
   for (i = 0; i < NUMSAMPLES; i++) {
-    adcOpen(1);
-    samples[i] = adcRead(1);
-    adcClose(1);
+    samples[i] = analogRead(_xm);
   }
 
 #if NUMSAMPLES > 2
@@ -154,24 +150,19 @@ TSPoint TouchScreen::getPoint(void) {
   // Set X+ to ground
   // Set Y- to VCC
   // Hi-Z X- and Y+
-  gpioPinMode(_yp, _DEF_INPUT);
   gpioPinMode(_xp, _DEF_OUTPUT);
+  gpioPinMode(_yp, _DEF_INPUT);
 
 #if defined(USE_FAST_PINIO)
   *xp_port &= ~xp_pin;
   *ym_port |= ym_pin;
 #else
-  gpioPinWrite(_ym, _DEF_HIGH);
   gpioPinWrite(_xp, _DEF_LOW);
+  gpioPinWrite(_ym, _DEF_HIGH);
 #endif
 
-  adcOpen(1);
-  int z1 = adcRead(1);
-  adcClose(1);
-
-  adcOpen(0);
-  int z2 = adcRead(0);
-  adcClose(0);
+  int z1 = analogRead(_xm);
+  int z2 = analogRead(_yp);
 
   if (_rxplate != 0) {
     // now read the x
@@ -225,21 +216,15 @@ TouchScreen::TouchScreen(uint8_t xp, uint8_t yp, uint8_t xm, uint8_t ym,
 int TouchScreen::readTouchX(void) {
   gpioPinMode(_yp, _DEF_INPUT);
   gpioPinMode(_ym, _DEF_INPUT);
-
   gpioPinWrite(_yp, _DEF_LOW);
   gpioPinWrite(_ym, _DEF_LOW);
 
   gpioPinMode(_xp, _DEF_OUTPUT);
-  gpioPinMode(_xm, _DEF_OUTPUT);
-
   gpioPinWrite(_xp, _DEF_HIGH);
+  gpioPinMode(_xm, _DEF_OUTPUT);
   gpioPinWrite(_xm, _DEF_LOW);
 
-  adcOpen(0);
-  int tmp = adcRead(0);
-  adcClose(0);
-
-  return (1023 - tmp);
+  return (1023 - analogRead(_yp));
 }
 /**
  * @brief Read the touch event's Y value
@@ -250,21 +235,15 @@ int TouchScreen::readTouchY(void) {
 
   gpioPinMode(_xp, _DEF_INPUT);
   gpioPinMode(_xm, _DEF_INPUT);
-
   gpioPinWrite(_xp, _DEF_LOW);
   gpioPinWrite(_xm, _DEF_LOW);
 
   gpioPinMode(_yp, _DEF_OUTPUT);
-  gpioPinMode(_ym, _DEF_OUTPUT);
-
   gpioPinWrite(_yp, _DEF_HIGH);
+  gpioPinMode(_ym, _DEF_OUTPUT);
   gpioPinWrite(_ym, _DEF_LOW);
 
-  adcOpen(1);
-  int tmp = adcRead(1);
-  adcClose(1);
-
-  return (1023 - tmp);
+  return (1023 - analogRead(_xm));
 }
 /**
  * @brief Read the touch event's Z/pressure value
@@ -281,18 +260,13 @@ uint16_t TouchScreen::pressure(void) {
   gpioPinWrite(_ym, _DEF_HIGH);
 
   // Hi-Z X- and Y+
-  gpioPinMode(_xm, _DEF_INPUT);
   gpioPinWrite(_xm, _DEF_LOW);
-  gpioPinMode(_yp, _DEF_INPUT);
+  gpioPinMode(_xm, _DEF_INPUT);
   gpioPinWrite(_yp, _DEF_LOW);
+  gpioPinMode(_yp, _DEF_INPUT);
 
-  adcOpen(1);
-  int z1 = adcRead(1);
-  adcClose(1);
-
-  adcOpen(0);
-  int z2 = adcRead(0);
-  adcClose(0);
+  int z1 = analogRead(_xm);
+  int z2 = analogRead(_yp);
 
   if (_rxplate != 0) {
     // now read the x
