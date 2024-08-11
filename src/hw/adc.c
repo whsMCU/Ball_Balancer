@@ -25,7 +25,6 @@ typedef struct
 {
   bool is_open;
   bool is_adc_done;
-  uint8_t adc_ch;
 
   ADC_HandleTypeDef *h_adc;
   ADC_ChannelConfTypeDef *h_sConfig;
@@ -209,22 +208,24 @@ bool adcClose(uint8_t ch)
 uint32_t analogRead(uint8_t ch)
 {
   uint16_t uhADCxConvertedValue = 0;
-  adc_t *p_adc = &adc_tbl[ch];
+  uint8_t adc_ch = 0;
 
   switch(ch)
   {
     case ADC_Touch_yp:
-      p_adc->adc_ch = 0;
+      adc_ch = 0;
       break;
 
     case ADC_Touch_xm:
-      p_adc->adc_ch = 1;
+      adc_ch = 1;
       break;
   }
 
-  adcOpen(p_adc->adc_ch);
+  adcOpen(adc_ch);
 
-  switch(p_adc->adc_ch)
+  adc_t *p_adc = &adc_tbl[adc_ch];
+
+  switch(adc_ch)
   {
     case _DEF_ADC1:
       /*##-3- Start the conversion process ####################*/
@@ -282,7 +283,7 @@ uint32_t analogRead(uint8_t ch)
       }
       break;
   }
-  adcClose(p_adc->adc_ch);
+  adcClose(adc_ch);
   return uhADCxConvertedValue;
 }
 

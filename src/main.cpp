@@ -25,6 +25,7 @@
 
 Machine machine(2, 3.125, 1.75, 3.669291339);     //(d, e, f, g) object to define the lengths of the machine
 TouchScreen ts = TouchScreen(Touch_xp, ADC_Touch_yp, ADC_Touch_xm, Touch_ym, 300);  //touch screen pins (XGND, YGND, X5V, Y5V)
+TSPoint touch_p;
 
 //stepper motors
 AccelStepper stepperA(1, StepA_STEP, StepA_DIR);  //(driver type, STEP, DIR) Driver A
@@ -99,12 +100,13 @@ int main(void)
 //  setAcceleration(&stepper_A, 500);
 //  moveTo(&stepper_A, 1600);
 
-
   while (1)
   {
-    PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
-
-	  cliMain();
+    //PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
+    touch_p = ts.getPoint();
+    timeI = millis();
+    while (millis() - timeI < 20);
+	  //cliMain();
 	  //lv_draw_chart(ui_SpeedStepChart_series_Target, ui_SpeedStepChart_series_Step);
 
 	  //lv_timer_handler();
@@ -202,10 +204,10 @@ void moveTo(double hz, double nx, double ny) {
     steppers.run();  //runs stepper to target position (increments at most 1 step per call)
   }
 }
-TSPoint p;
+
 //takes in an X and Y setpoint/position and moves the ball to that position
 void PID(double setpointX, double setpointY) {
-  p = ts.getPoint();  //measure X and Y positions
+  TSPoint p = ts.getPoint();  //measure X and Y positions
   //if the ball is detected (the x position will not be 0)
   if (p.x != 0) {
     detected = 1;
