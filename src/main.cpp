@@ -70,7 +70,8 @@ void PID(double setpointX, double setpointY);
 //}
 
 void SystemClock_Config(void);
-
+uint32_t adc_tmp_x;
+uint32_t adc_tmp_y;
 int main(void)
 {
 	HAL_Init();
@@ -100,10 +101,31 @@ int main(void)
 //  setAcceleration(&stepper_A, 500);
 //  moveTo(&stepper_A, 1600);
 
+
+
+
+
   while (1)
   {
+    gpioPinMode(ADC_Touch_yp, _DEF_INPUT);
+    gpioPinMode(Touch_ym, _DEF_INPUT);
+    gpioPinMode(Touch_xp, _DEF_OUTPUT);
+    gpioPinMode(ADC_Touch_xm, _DEF_OUTPUT);
+    gpioPinWrite(Touch_xp, _DEF_HIGH);
+    gpioPinWrite(ADC_Touch_xm, _DEF_LOW);
+    adc_tmp_x = analogRead(ADC_Touch_yp);
+
+    delayMicroseconds(1000);
+
+    gpioPinMode(Touch_xp, _DEF_INPUT);
+    gpioPinMode(ADC_Touch_xm, _DEF_INPUT);
+    gpioPinMode(ADC_Touch_yp, _DEF_OUTPUT);
+    gpioPinMode(Touch_ym, _DEF_OUTPUT);
+    gpioPinWrite(Touch_ym, _DEF_LOW);
+    gpioPinWrite(ADC_Touch_yp, _DEF_HIGH);
+    adc_tmp_y = analogRead(ADC_Touch_xm);
     //PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
-    touch_p = ts.getPoint();
+    //touch_p = ts.getPoint();
     timeI = millis();
     while (millis() - timeI < 20);
 	  //cliMain();
