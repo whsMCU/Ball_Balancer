@@ -85,9 +85,9 @@ bool adcOpen(uint8_t ch)
       __HAL_RCC_GPIOA_CLK_ENABLE();
 
       /**ADC1 GPIO Configuration
-      PA1     ------> ADC1_IN1
+      PA5     ------> ADC1_IN5
       */
-      GPIO_InitStruct.Pin = GPIO_PIN_1;
+      GPIO_InitStruct.Pin = GPIO_PIN_5;
       GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
       GPIO_InitStruct.Pull = GPIO_NOPULL;
       HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -101,7 +101,7 @@ bool adcOpen(uint8_t ch)
         p_adc->is_open = true;
         ret = true;
       }
-      p_adc->h_sConfig->Channel = ADC_CHANNEL_1;
+      p_adc->h_sConfig->Channel = ADC_CHANNEL_5;
       if(!IS_ADC_CHANNEL(p_adc->h_sConfig->Channel))
       {
         return 0;
@@ -137,9 +137,9 @@ bool adcOpen(uint8_t ch)
       __HAL_RCC_GPIOA_CLK_ENABLE();
 
       /**ADC1 GPIO Configuration
-      PA3     ------> ADC1_IN3
+      PA6     ------> ADC1_IN6
       */
-      GPIO_InitStruct.Pin = GPIO_PIN_3;
+      GPIO_InitStruct.Pin = GPIO_PIN_6;
       GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
       GPIO_InitStruct.Pull = GPIO_NOPULL;
       HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -153,7 +153,7 @@ bool adcOpen(uint8_t ch)
         p_adc->is_open = true;
         ret = true;
       }
-      p_adc->h_sConfig->Channel = ADC_CHANNEL_3;
+      p_adc->h_sConfig->Channel = ADC_CHANNEL_6;
       p_adc->h_sConfig->Rank = 1;
       p_adc->h_sConfig->SamplingTime = ADC_SAMPLETIME_15CYCLES;
       if (HAL_ADC_ConfigChannel(p_adc->h_adc, p_adc->h_sConfig) == HAL_OK)
@@ -212,11 +212,11 @@ uint32_t analogRead(uint8_t ch)
 
   switch(ch)
   {
-    case ADC_Touch_yp:
+    case ADC_Touch_ym:
       adc_ch = 0;
       break;
 
-    case ADC_Touch_xm:
+    case ADC_Touch_xp:
       adc_ch = 1;
       break;
   }

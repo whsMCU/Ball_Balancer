@@ -24,7 +24,7 @@
 #include "MultiStepper.h"
 
 Machine machine(2, 3.125, 1.75, 3.669291339);     //(d, e, f, g) object to define the lengths of the machine
-TouchScreen ts = TouchScreen(Touch_xp, ADC_Touch_yp, ADC_Touch_xm, Touch_ym, 300);  //touch screen pins (XGND, YGND, X5V, Y5V)
+TouchScreen ts = TouchScreen(Touch_xm, ADC_Touch_ym, ADC_Touch_xp, Touch_yp, 0);  //touch screen pins (XGND, YGND, X5V, Y5V)
 TSPoint touch_p;
 
 //stepper motors
@@ -101,31 +101,30 @@ int main(void)
 //  setAcceleration(&stepper_A, 500);
 //  moveTo(&stepper_A, 1600);
 
-
-
-
-
   while (1)
   {
-    gpioPinMode(ADC_Touch_yp, _DEF_INPUT);
-    gpioPinMode(Touch_ym, _DEF_INPUT);
-    gpioPinMode(Touch_xp, _DEF_OUTPUT);
-    gpioPinMode(ADC_Touch_xm, _DEF_OUTPUT);
-    gpioPinWrite(Touch_xp, _DEF_HIGH);
-    gpioPinWrite(ADC_Touch_xm, _DEF_LOW);
-    adc_tmp_x = analogRead(ADC_Touch_yp);
+//    gpioPinMode(ADC_Touch_yp, _DEF_INPUT);
+//    gpioPinMode(Touch_ym, _DEF_INPUT);
+//
+//    gpioPinMode(Touch_xp, _DEF_OUTPUT);
+//    gpioPinMode(ADC_Touch_xm, _DEF_OUTPUT);
+//    gpioPinWrite(Touch_xp, _DEF_HIGH);
+//    gpioPinWrite(ADC_Touch_xm, _DEF_LOW);
+//    delayMicroseconds(20);
+//    adc_tmp_x = analogRead(ADC_Touch_yp);
+//
+//    gpioPinMode(Touch_xp, _DEF_INPUT);
+//    gpioPinMode(ADC_Touch_xm, _DEF_INPUT);
+//
+//    gpioPinMode(ADC_Touch_yp, _DEF_OUTPUT);
+//    gpioPinMode(Touch_ym, _DEF_OUTPUT);
+//    gpioPinWrite(Touch_ym, _DEF_LOW);
+//    gpioPinWrite(ADC_Touch_yp, _DEF_HIGH);
+//    delayMicroseconds(20);
+//    adc_tmp_y = analogRead(ADC_Touch_xm);
 
-    delayMicroseconds(1000);
-
-    gpioPinMode(Touch_xp, _DEF_INPUT);
-    gpioPinMode(ADC_Touch_xm, _DEF_INPUT);
-    gpioPinMode(ADC_Touch_yp, _DEF_OUTPUT);
-    gpioPinMode(Touch_ym, _DEF_OUTPUT);
-    gpioPinWrite(Touch_ym, _DEF_LOW);
-    gpioPinWrite(ADC_Touch_yp, _DEF_HIGH);
-    adc_tmp_y = analogRead(ADC_Touch_xm);
     //PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
-    //touch_p = ts.getPoint();
+    touch_p = ts.getPoint();
     timeI = millis();
     while (millis() - timeI < 20);
 	  //cliMain();

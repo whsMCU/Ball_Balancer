@@ -34,8 +34,8 @@ enum
 	StepE0_EN,
 	StepE0_STEP,
 	StepE0_DIR,
-  ADC_Touch_xm,
-  ADC_Touch_yp,
+	ADC_Touch_xp,
+  ADC_Touch_ym,
 	TFT_CS,
 	TFT_DC,
 	TFT_RST,
@@ -43,8 +43,8 @@ enum
 	Toutch_CS,
 	BEEPER,
 	FLASH_CS,
-  Touch_xp,
-  Touch_ym,
+	Touch_xm,
+  Touch_yp,
 };
 
 
