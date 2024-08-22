@@ -33,23 +33,25 @@ AccelStepper stepperB(1, StepB_STEP, StepB_DIR);  //(driver type, STEP, DIR) Dri
 AccelStepper stepperC(1, StepC_STEP, StepC_DIR);  //(driver type, STEP, DIR) Driver C
 MultiStepper steppers;           // Create instance of MultiStepper
 
+long pos[3] = {400, 400, 400};                            // An array to store the target positions for each stepper motor
+
 //stepper motor variables
-long pos[3] = {3200, 3200, 3200};                            // An array to store the target positions for each stepper motor
-double angOrig = 206.662752199;                        //original angle that each leg starts at
-double speed[3] = { 0, 0, 0 }, speedPrev[3], ks = 20;  //the speed of the stepper motor and the speed amplifying constant
+//long pos[3] = {3200, 3200, 3200};                            // An array to store the target positions for each stepper motor
+//double angOrig = 206.662752199;                        //original angle that each leg starts at
+//double speed[3] = { 0, 0, 0 }, speedPrev[3], ks = 20;  //the speed of the stepper motor and the speed amplifying constant
 
 //touch screen variables
-double Xoffset = 500;  //X offset for the center position of the touchpad
-double Yoffset = 500;  //Y offset for the center position of the touchpad
+//double Xoffset = 500;  //X offset for the center position of the touchpad
+//double Yoffset = 500;  //Y offset for the center position of the touchpad
 
 //PID variables
-double kp = 4E-4, ki = 2E-6, kd = 7E-3;                                                       //PID constants
-double error[2] = { 0, 0 }, errorPrev[2], integr[2] = { 0, 0 }, deriv[2] = { 0, 0 }, out[2];  //PID terms for X and Y directions
-long timeI;                                                                           //variables to capture initial times
+//double kp = 4E-4, ki = 2E-6, kd = 7E-3;                                                       //PID constants
+//double error[2] = { 0, 0 }, errorPrev[2], integr[2] = { 0, 0 }, deriv[2] = { 0, 0 }, out[2];  //PID terms for X and Y directions
+//long timeI;                                                                           //variables to capture initial times
 
 //Other Variables
-double angToStep = 3200 / 360;  //angle to step conversion factor (steps per degree) for 16 microsteps or 3200 steps/rev
-bool detected = 0;              //this value is 1 when the ball is detected and the value is 0 when the ball in not detected
+//double angToStep = 3200 / 360;  //angle to step conversion factor (steps per degree) for 16 microsteps or 3200 steps/rev
+//bool detected = 0;              //this value is 1 when the ball is detected and the value is 0 when the ball in not detected
 
 void moveTo(double hz, double nx, double ny);
 void PID(double setpointX, double setpointY);
@@ -96,43 +98,19 @@ int main(void)
   //lv_chart_series_t * ui_SpeedStepChart_series_Step = lv_chart_add_series(ui_SpeedStepChart, lv_color_hex(0x0005FF),
   //                                                                         LV_CHART_AXIS_SECONDARY_Y);
 
-//  stepper_Init(&stepper_A, StepA_EN, StepA_DIR, StepA_STEP);
-//  setMaxSpeed(&stepper_A, 2000);
-//  setAcceleration(&stepper_A, 500);
-//  moveTo(&stepper_A, 1600);
-
-  while (1)
-  {
-//    gpioPinMode(ADC_Touch_yp, _DEF_INPUT);
-//    gpioPinMode(Touch_ym, _DEF_INPUT);
-//
-//    gpioPinMode(Touch_xp, _DEF_OUTPUT);
-//    gpioPinMode(ADC_Touch_xm, _DEF_OUTPUT);
-//    gpioPinWrite(Touch_xp, _DEF_HIGH);
-//    gpioPinWrite(ADC_Touch_xm, _DEF_LOW);
-//    delayMicroseconds(20);
-//    adc_tmp_x = analogRead(ADC_Touch_yp);
-//
-//    gpioPinMode(Touch_xp, _DEF_INPUT);
-//    gpioPinMode(ADC_Touch_xm, _DEF_INPUT);
-//
-//    gpioPinMode(ADC_Touch_yp, _DEF_OUTPUT);
-//    gpioPinMode(Touch_ym, _DEF_OUTPUT);
-//    gpioPinWrite(Touch_ym, _DEF_LOW);
-//    gpioPinWrite(ADC_Touch_yp, _DEF_HIGH);
-//    delayMicroseconds(20);
-//    adc_tmp_y = analogRead(ADC_Touch_xm);
+while (1)
+{
 
     //PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
-    touch_p = ts.getPoint();
-    timeI = millis();
-    while (millis() - timeI < 20);
-	  //cliMain();
+//    touch_p = ts.getPoint();
+//    timeI = millis();
+//    while (millis() - timeI < 20);
+//	  cliMain();
 	  //lv_draw_chart(ui_SpeedStepChart_series_Target, ui_SpeedStepChart_series_Step);
 
 	  //lv_timer_handler();
 	  //HAL_Delay(5);
-  }
+}
 
 }
 
@@ -166,6 +144,10 @@ void hwInit(void)
 
   cliOpen(_DEF_USB, 115200);
 
+  stepperA.setMaxSpeed(200);
+  stepperB.setMaxSpeed(200);
+  stepperC.setMaxSpeed(200);
+
   // Adding the steppers to the steppersControl instance for multi stepper control
   steppers.addStepper(stepperA);
   steppers.addStepper(stepperB);
@@ -182,8 +164,11 @@ void hwInit(void)
   gpioPinWrite(StepB_EN, _DEF_LOW);  //sets the drivers on initially
   gpioPinWrite(StepC_EN, _DEF_LOW);  //sets the drivers on initially
 
-  moveTo(4.25, 0, 0);             //moves the platform to the home position
-  steppers.runSpeedToPosition();  //blocks until the platform is at the home position
+  steppers.moveTo(pos);  // Calculates the required speed for all motors
+  steppers.runSpeedToPosition();  // blocks until all steppers reach their target position
+
+  //moveTo(4.25, 0, 0);             //moves the platform to the home position
+  //steppers.runSpeedToPosition();  //blocks until the platform is at the home position
 }
 
 //moves/positions the platform with the given parameters
