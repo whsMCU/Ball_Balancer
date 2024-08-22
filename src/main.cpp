@@ -25,7 +25,6 @@
 
 Machine machine(2, 3.125, 1.75, 3.669291339);     //(d, e, f, g) object to define the lengths of the machine
 TouchScreen ts = TouchScreen(Touch_xm, ADC_Touch_ym, ADC_Touch_xp, Touch_yp, 0);  //touch screen pins (XGND, YGND, X5V, Y5V)
-TSPoint touch_p;
 
 //stepper motors
 AccelStepper stepperA(1, StepA_STEP, StepA_DIR);  //(driver type, STEP, DIR) Driver A
@@ -33,25 +32,23 @@ AccelStepper stepperB(1, StepB_STEP, StepB_DIR);  //(driver type, STEP, DIR) Dri
 AccelStepper stepperC(1, StepC_STEP, StepC_DIR);  //(driver type, STEP, DIR) Driver C
 MultiStepper steppers;           // Create instance of MultiStepper
 
-long pos[3] = {400, 400, 400};                            // An array to store the target positions for each stepper motor
-
 //stepper motor variables
-//long pos[3] = {3200, 3200, 3200};                            // An array to store the target positions for each stepper motor
-//double angOrig = 206.662752199;                        //original angle that each leg starts at
-//double speed[3] = { 0, 0, 0 }, speedPrev[3], ks = 20;  //the speed of the stepper motor and the speed amplifying constant
+long pos[3] = {0, 0, 0};                            // An array to store the target positions for each stepper motor
+double angOrig = 206.662752199;                        //original angle that each leg starts at
+double speed[3] = { 0, 0, 0 }, speedPrev[3], ks = 20;  //the speed of the stepper motor and the speed amplifying constant
 
 //touch screen variables
-//double Xoffset = 500;  //X offset for the center position of the touchpad
-//double Yoffset = 500;  //Y offset for the center position of the touchpad
+double Xoffset = 500;  //X offset for the center position of the touchpad
+double Yoffset = 500;  //Y offset for the center position of the touchpad
 
 //PID variables
-//double kp = 4E-4, ki = 2E-6, kd = 7E-3;                                                       //PID constants
-//double error[2] = { 0, 0 }, errorPrev[2], integr[2] = { 0, 0 }, deriv[2] = { 0, 0 }, out[2];  //PID terms for X and Y directions
-//long timeI;                                                                           //variables to capture initial times
+double kp = 4E-4, ki = 2E-6, kd = 7E-3;                                                       //PID constants
+double error[2] = { 0, 0 }, errorPrev[2], integr[2] = { 0, 0 }, deriv[2] = { 0, 0 }, out[2];  //PID terms for X and Y directions
+long timeI;                                                                           //variables to capture initial times
 
 //Other Variables
-//double angToStep = 3200 / 360;  //angle to step conversion factor (steps per degree) for 16 microsteps or 3200 steps/rev
-//bool detected = 0;              //this value is 1 when the ball is detected and the value is 0 when the ball in not detected
+double angToStep = 3200 / 360;  //angle to step conversion factor (steps per degree) for 16 microsteps or 3200 steps/rev
+bool detected = 0;              //this value is 1 when the ball is detected and the value is 0 when the ball in not detected
 
 void moveTo(double hz, double nx, double ny);
 void PID(double setpointX, double setpointY);
@@ -72,8 +69,7 @@ void PID(double setpointX, double setpointY);
 //}
 
 void SystemClock_Config(void);
-uint32_t adc_tmp_x;
-uint32_t adc_tmp_y;
+
 int main(void)
 {
 	HAL_Init();
@@ -98,19 +94,16 @@ int main(void)
   //lv_chart_series_t * ui_SpeedStepChart_series_Step = lv_chart_add_series(ui_SpeedStepChart, lv_color_hex(0x0005FF),
   //                                                                         LV_CHART_AXIS_SECONDARY_Y);
 
-while (1)
-{
+  while (1)
+  {
+    PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
 
-    //PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
-//    touch_p = ts.getPoint();
-//    timeI = millis();
-//    while (millis() - timeI < 20);
-//	  cliMain();
+    //cliMain();
 	  //lv_draw_chart(ui_SpeedStepChart_series_Target, ui_SpeedStepChart_series_Step);
 
 	  //lv_timer_handler();
 	  //HAL_Delay(5);
-}
+  }
 
 }
 
@@ -144,10 +137,6 @@ void hwInit(void)
 
   cliOpen(_DEF_USB, 115200);
 
-  stepperA.setMaxSpeed(200);
-  stepperB.setMaxSpeed(200);
-  stepperC.setMaxSpeed(200);
-
   // Adding the steppers to the steppersControl instance for multi stepper control
   steppers.addStepper(stepperA);
   steppers.addStepper(stepperB);
@@ -159,16 +148,14 @@ void hwInit(void)
   gpioPinWrite(StepA_EN, _DEF_HIGH);  //sets the drivers on initially
   gpioPinWrite(StepB_EN, _DEF_HIGH);  //sets the drivers on initially
   gpioPinWrite(StepC_EN, _DEF_HIGH);  //sets the drivers on initially
+
   delay(1000);             //small delay to allow the user to reset the platform
   gpioPinWrite(StepA_EN, _DEF_LOW);  //sets the drivers on initially
   gpioPinWrite(StepB_EN, _DEF_LOW);  //sets the drivers on initially
   gpioPinWrite(StepC_EN, _DEF_LOW);  //sets the drivers on initially
 
-  steppers.moveTo(pos);  // Calculates the required speed for all motors
-  steppers.runSpeedToPosition();  // blocks until all steppers reach their target position
-
-  //moveTo(4.25, 0, 0);             //moves the platform to the home position
-  //steppers.runSpeedToPosition();  //blocks until the platform is at the home position
+  moveTo(4.25, 0, 0);             //moves the platform to the home position
+  steppers.runSpeedToPosition();  //blocks until the platform is at the home position
 }
 
 //moves/positions the platform with the given parameters
@@ -225,15 +212,15 @@ void PID(double setpointX, double setpointY) {
       deriv[i] = error[i] - errorPrev[i];                                                          //calcuates the derivative of the error (proportional but not equal to the true derivative of the error)
       deriv[i] = isnan(deriv[i]) || isinf(deriv[i]) ? 0 : deriv[i];                                //checks if the derivative is a real number or infinite
       out[i] = kp * error[i] + ki * integr[i] + kd * deriv[i];                                     //sets output
-      out[i] = constrain(out[i], -0.25, 0.25);                                                     //contrains output to have a magnitude of 0.25
+      out[i] = constrainf(out[i], -0.25, 0.25);                                                     //contrains output to have a magnitude of 0.25
     }
     //calculates stepper motor speeds
     for (int i = 0; i < 3; i++) {
       speedPrev[i] = speed[i];                                                                                                           //sets previous speed
       speed[i] = (i == A) * stepperA.currentPosition() + (i == B) * stepperB.currentPosition() + (i == C) * stepperC.currentPosition();  //sets current position
       speed[i] = abs(speed[i] - pos[i]) * ks;                                                                                            //calculates the error in the current position and target position
-      speed[i] = constrain(speed[i], speedPrev[i] - 200, speedPrev[i] + 200);                                                            //filters speed by preventing it from beign over 100 away from last speed
-      speed[i] = constrain(speed[i], 0, 1000);                                                                                           //constrains sped from 0 to 1000
+      speed[i] = constrainf(speed[i], speedPrev[i] - 200, speedPrev[i] + 200);                                                            //filters speed by preventing it from beign over 100 away from last speed
+      speed[i] = constrainf(speed[i], 0, 1000);                                                                                           //constrains sped from 0 to 1000
     }
     //Serial.println((String) "X OUT = " + out[0] + "   Y OUT = " + out[1] + "   Speed A: " + speed[A]);  //print X and Y outputs
   }
