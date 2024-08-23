@@ -141,6 +141,10 @@ void hwInit(void)
   steppers.addStepper(stepperA);
   steppers.addStepper(stepperB);
   steppers.addStepper(stepperC);
+
+  stepperA.setPinsInverted(1, 0, 0);
+  stepperB.setPinsInverted(1, 0, 0);
+  stepperC.setPinsInverted(1, 0, 0);
   //Enable pin
   gpioPinMode(StepA_EN, _DEF_OUTPUT);    //define enable pin as output
   gpioPinMode(StepB_EN, _DEF_OUTPUT);    //define enable pin as output
