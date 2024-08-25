@@ -44,7 +44,7 @@ double Yoffset = 500;  //Y offset for the center position of the touchpad
 //PID variables
 double kp = 4E-4, ki = 2E-6, kd = 7E-3;                                                       //PID constants
 double error[2] = { 0, 0 }, errorPrev[2], integr[2] = { 0, 0 }, deriv[2] = { 0, 0 }, out[2];  //PID terms for X and Y directions
-long timeI;                                                                           //variables to capture initial times
+long timeI, timeII;                                                                           //variables to capture initial times
 
 //Other Variables
 double angToStep = 3200 / 360;  //angle to step conversion factor (steps per degree) for 16 microsteps or 3200 steps/rev
@@ -53,20 +53,15 @@ bool detected = 0;              //this value is 1 when the ball is detected and 
 void moveTo(double hz, double nx, double ny);
 void PID(double setpointX, double setpointY);
 
-//void lv_draw_chart(lv_chart_series_t * ser1, lv_chart_series_t * ser2)
-//{
-//  static uint32_t last_tick = 0;
-//  uint32_t curr_tick = millis();
-//
-//  if((curr_tick - last_tick) >= (500)) {
-//      last_tick = curr_tick;
-//
-//      //lv_chart_set_next_value(ui_SpeedStepChart, ser1, stepper_A._targetPos);
-//      //lv_chart_set_next_value(ui_SpeedStepChart, ser2, stepper_A._currentPos);
-//
-//      //lv_chart_refresh(ui_SpeedStepChart); /*Required after direct set*/
-//  }
-//}
+void moveToPID(int X, int Y, int wait);
+void linePattern(double rx, int ry, int wait, int num);
+void trianglePattern(int num);
+void squarePattern(int num);
+void pinBallPattern(int Y, int wait);
+void ellipsePattern(double rx, int ry, double start, int wait, int num);
+void sinusoidalPattern(double ampli, double freq, int wait);
+void figure8Pattern(double r, double start, int wait, int num);
+void DEMO(void);
 
 void SystemClock_Config(void);
 
@@ -76,33 +71,23 @@ int main(void)
 
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
   hwInit();
-
-  //lv_init();
-
-  //lv_port_disp_init();
-  //lv_port_indev_init();
-
-  //LCD_Draw_Logo();
-  //HAL_Delay(2000);
-
-  //ui_init();
-
-  //lv_chart_series_t * ui_SpeedStepChart_series_Target = lv_chart_add_series(ui_SpeedStepChart, lv_color_hex(0xFF0000),
-  //                                                                         LV_CHART_AXIS_PRIMARY_Y);
-  //lv_chart_series_t * ui_SpeedStepChart_series_Step = lv_chart_add_series(ui_SpeedStepChart, lv_color_hex(0x0005FF),
-  //                                                                         LV_CHART_AXIS_SECONDARY_Y);
 
   while (1)
   {
     PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
 
-    //cliMain();
-	  //lv_draw_chart(ui_SpeedStepChart_series_Target, ui_SpeedStepChart_series_Step);
+    //moveToPID(0, 0, 5000); //moves the ball to a position and keeps it there (X, Y, wait)
+    //linePattern(100, 0, 800, 2);  //moves the ball in a line (rx, ry, wait, num)
+    //trianglePattern(3); //moves the ball in a triangle (num)
+    //squarePattern(3);  //moves the ball in a square (num)
+    //pinBallPattern(200, 600);  //moves the ball in a pinball pattern (Y, wait)
+    //ellipsePattern(100, 100, 0, 20, 5);  //moves the ball in an elipse (rx, ry, start, wait, num)
+    //sinusoidalPattern(50, 30, 20);  //moves ball in a sinusoidal pattern (A, B, wait)
+    //figure8Pattern(200, 0, 10, 5);  //moves the ball in an elipse (r, start, wait, num)
+    DEMO(); //does all of the patterns sequentially;
 
-	  //lv_timer_handler();
-	  //HAL_Delay(5);
+    //cliMain();
   }
 
 }
@@ -242,6 +227,188 @@ void PID(double setpointX, double setpointY) {
   timeI = millis();
   while (millis() - timeI < 20) {
     moveTo(4.25, -out[0], -out[1]);  //moves the platfrom
+  }
+}
+
+//moves the ball to a location with
+void moveToPID(int X, int Y, int wait) {
+  //X = x setpoint
+  //Y = y setpoint
+  //wait = elapsed time
+  timeII = millis();
+  while (millis() - (uint32_t)timeII < (uint32_t)wait) {
+    PID(X, Y);
+  }
+}
+//moves the ball in a line
+void linePattern(double rx, int ry, int wait, int num) {
+  //rx = half the traversal length in the X direction (0 - 200)
+  //ry = half the traversal length in the Y direction (0 - 200)
+  //wait = time delay between movements in ms (0 - 1000)
+  //num = number of interations
+  for (int i = 0; i < num; i++) {
+    timeII = millis();
+    while (millis() - (uint32_t)timeII < (uint32_t)wait) {
+      PID(rx, ry);  //(X setpoint, Y setpoint)
+    }
+    timeII = millis();
+    while (millis() - (uint32_t)timeII < (uint32_t)wait) {
+      PID(-rx, -ry);  //(X setpoint, Y setpoint)
+    }
+  }
+}
+//moves the ball in a triangle
+void trianglePattern(int num) {
+  //num = number of interations
+  double s = 400;  //side length
+  for (int i = 0; i < num; i++) {
+    for (int j = 0; j < 3; j++) {
+      timeII = millis();
+      while (millis() - timeII < 800) {
+        PID((1 - j) * (s / 2), j == 1 ? s * (sqrt(3) / 4) : -s * (sqrt(3) / 4));  //(X setpoint, Y setpoint)
+      }
+    }
+  }
+}
+//moves the ball in a square
+void squarePattern(int num) {
+  //num = number of interations
+  int s = 400;  //side length
+  for (int i = 0; i < num; i++) {
+    for (int j = 0; j < 4; j++) {
+      timeII = millis();
+      while (millis() - timeII < 700) {
+        PID(j < 2 ? s / 2 : -s / 2, j == 1 || j == 2 ? s / 2 : -s / 2);  //(X setpoint, Y setpoint)
+      }
+    }
+  }
+}
+//moves the ball in a pinBall pattern
+void pinBallPattern(int Y, int wait) {
+  //Y = amplitude - (100-200)
+  //wait = time delay between movements in ms (0 - 1000)
+  Y *= -1;
+  for (int X = 200; X >= -300; X -= 100) {
+    timeII = millis();
+    while (millis() - (uint32_t)timeII < (uint32_t)wait) {
+      PID(X, Y);  //(X setpoint, Y setpoint)
+    }
+    Y *= -1;
+  }
+  for (int X = -200; X <= 300; X += 100) {
+    timeII = millis();
+    while (millis() - (uint32_t)timeII < (uint32_t)wait) {
+      PID(X, Y);  //(X setpoint, Y setpoint)
+    }
+    Y *= -1;
+  }
+}
+//moves the ball in an elipse
+void ellipsePattern(double rx, int ry, double start, int wait, int num) {
+  //rx = x axis radius (0 - 150)
+  //ry = y axis radius (0 - 150)
+  //start = 0 or 2*PI
+  //wait = time delay between movements in ms (0 - 20)
+  //num = number of times to traverse the elipse
+  double theta;
+  for (int i = 0; i < num; i++) {
+    theta = start;
+    for (double j = 0; j <= 2 * M_PI; j += 0.1) {
+      timeII = millis();
+      while (millis() - (uint32_t)timeII < (uint32_t)wait) {        //moves the ball
+        PID(rx * cos(theta), ry * sin(theta));  //(X setpoint, Y setpoint)
+      }
+      theta += start == 0 ? 0.1 : (start == 2 * M_PI ? -0.1 : 0);
+    }
+  }
+}
+//moves ball in a sinusoidal pattern
+void sinusoidalPattern(double ampli, double freq, int wait) {
+  //ampli = amplitude
+  //freq = frequency
+  //wait = time delay between movements in ms (0 - 20)
+  for (double X = 300; X >= -300; X -= 5) {
+    timeII = millis();
+    while (millis() - (uint32_t)timeII < (uint32_t)wait) {  //moves the ball
+      PID(X, ampli * sin(X / freq));    //(X setpoint, Y setpoint)
+    }
+  }
+  for (double X = -300; X <= 300; X += 5) {
+    timeII = millis();
+    while (millis() - (uint32_t)timeII < (uint32_t)wait) {  //moves the ball
+      PID(X, ampli * sin(X / freq));    //(X setpoint, Y setpoint)
+    }
+  }
+}
+//moves the ball in figure 8
+void figure8Pattern(double r, double start, int wait, int num) {
+  //r = x and Y axis radius (0 - 150)
+  //start = 0 or -2*PI
+  //wait = time delay between movements in ms (0 - 20)
+  //num = number of times to traverse the elipse
+  double theta;
+  double scale;
+  for (int i = 0; i < num; i++) {
+    theta = start;
+    for (double j = 0; j < 2 * M_PI; j += 0.05) {
+      timeII = millis();
+      scale = r * (2 / (3 - cos(2 * theta)));  //moves the ball
+      while (millis() - (uint32_t)timeII < (uint32_t)wait) {
+        PID(scale * cos(theta), scale * sin(2 * theta) / 1.5);  //(X setpoint, Y setpoint)
+      }
+      theta += start == 0 ? -0.05 : (start == -2 * M_PI ? 0.05 : 0);
+    }
+  }
+}
+//demo
+void DEMO() {
+  moveToPID(0, 0, 8000);
+  linePattern(200, 0, 1000, 1);  //moves the ball in a line (rx, ry, wait, num)
+  linePattern(200, 0, 600, 2);  //moves the ball in a line (rx, ry, wait, num)
+  //triangle demo
+  trianglePattern(2);  //moves the ball in a triangle (num)
+  //square demo
+  squarePattern(2);  //moves the ball in a square (num)
+  //pinBall demo
+  pinBallPattern(175, 500);  //moves the ball in a pinball pattern (wait)
+  pinBallPattern(100, 300);  //moves the ball in a pinball pattern (wait)
+  //circle demo
+  ellipsePattern(50, 50, 0, 1, 2);     //moves the ball in an elipse (rx, ry, start, wait, num)
+  ellipsePattern(100, 100, 0, 10, 2);  //moves the ball in an elipse (rx, ry, start, wait, num)
+  ellipsePattern(150, 150, 0, 20, 2);  //moves the ball in an elipse (rx, ry, start, wait, num)
+  ellipsePattern(50, 150, 0, 20, 2);  //moves the ball in an elipse (rx, ry, start, wait, num)
+  ellipsePattern(150, 50, 0, 20, 2);  //moves the ball in an elipse (rx, ry, start, wait, num)
+  //sinusoidal demo
+  sinusoidalPattern(50, 30, 10);   //moves ball in a sinusoidal pattern (ampli, freq, wait)
+  sinusoidalPattern(100, 50, 10);  //moves ball in a sinusoidal pattern (ampli, freq, wait)
+  sinusoidalPattern(150, 80, 10);  //moves ball in a sinusoidal pattern (ampli, freq, wait)
+  //figure 8 demo
+  figure8Pattern(200, 0, 20, 3);  //moves the ball in an elipse (r, start, wait, num)
+  //end
+  moveToPID(0, 0, 2000);
+  for (int i = 0; i < 3; i++) {
+    pos[i] = round((angOrig - machine.theta(i, 4.25, 0, 0.25)) * angToStep);
+  }
+  stepperA.setMaxSpeed(2000);
+  stepperB.setMaxSpeed(2000);
+  stepperC.setMaxSpeed(2000);
+  steppers.moveTo(pos);
+  steppers.runSpeedToPosition();  //blocks until the platform is at the home position
+  delay(1000);
+  detected = 0;
+  moveTo(4.25, 0, 0);             //moves the platform to the home position
+  steppers.runSpeedToPosition();  //blocks until the platform is at the home position
+  for (int i = 0; i < 20; i++) {
+    for (int j = 0; j < 3; j++) {
+      pos[j] = round((angOrig - machine.theta(j, 5 - 1.25 * (i % 2 != 0), 0, 0)) * angToStep);
+    }
+    //sets max speed
+    stepperA.setMaxSpeed(2000);
+    stepperB.setMaxSpeed(2000);
+    stepperC.setMaxSpeed(2000);
+    //moves the stepper motors
+    steppers.moveTo(pos);
+    steppers.runSpeedToPosition();  //runs stepper to target position (increments at most 1 step per call)
   }
 }
 
