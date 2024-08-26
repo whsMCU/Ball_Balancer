@@ -16,6 +16,7 @@ static bool is_open[UART_MAX_CH];
 static qbuffer_t ring_buffer[UART_MAX_CH];
 static volatile uint8_t rx_buf[UART_MAX_CH-1][MAX_SIZE];
 static volatile uint8_t rx_buf2[MAX_SIZE];
+static volatile uint8_t rx_buf3[MAX_SIZE];
 
 UART_HandleTypeDef huart3;
 
@@ -48,39 +49,6 @@ bool uartOpen(uint8_t ch, uint32_t baud)
       ret = true;
       break;
 
-    case _DEF_UART2:
-//    	huart2.Instance = USART2;
-//    	huart2.Init.BaudRate = baud;
-//    	huart2.Init.WordLength = UART_WORDLENGTH_8B;
-//      huart2.Init.StopBits = UART_STOPBITS_1;
-//    	huart2.Init.Parity = UART_PARITY_NONE;
-//    	huart2.Init.Mode = UART_MODE_TX_RX;
-//    	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-//    	huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-//
-//    	qbufferCreate(&ring_buffer[ch], (uint8_t *)&rx_buf2[0], MAX_SIZE);
-//
-//    	//HAL_UART_DeInit(&huart2);
-//
-//    	if (HAL_UART_Init(&huart2) != HAL_OK)
-//    	{
-//    	  Error_Handler();
-//    	}
-//    	else
-//    	{
-//    		ret = true;
-//        is_open[ch] = true;
-//    	  HAL_UARTEx_ReceiveToIdle_DMA(&huart2, (uint8_t *)&rx_buf[0], MAX_SIZE);
-//    	  __HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
-////        if(HAL_UART_Receive_DMA(&huart2, (uint8_t *)&rx_buf2[0], MAX_SIZE) != HAL_OK)
-////        {
-////          ret = false;
-////        }
-//        //ring_buffer[ch].in  = (ring_buffer[ch].len - hdma_usart2_rx.Instance->NDTR);
-//        //ring_buffer[ch].out = ring_buffer[ch].in;
-//    	}
-      break;
-
     case _DEF_UART3:
     	huart3.Instance = USART3;
     	huart3.Init.BaudRate = baud;
@@ -91,109 +59,21 @@ bool uartOpen(uint8_t ch, uint32_t baud)
     	huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
     	huart3.Init.OverSampling = UART_OVERSAMPLING_16;
 
-    	qbufferCreate(&ring_buffer[ch], (uint8_t *)&rx_buf[ch-1][0], MAX_SIZE);
+    	qbufferCreate(&ring_buffer[ch], (uint8_t *)&rx_buf3, MAX_SIZE);
 
-    	if (HAL_UART_Init(&huart3) != HAL_OK)
-    	{
-    	  Error_Handler();
-    	}
-    	else
-    	{
-    		ret = true;
+      if (HAL_UART_Init(&huart3) != HAL_OK)
+      {
+        Error_Handler();
+      }
+      else
+      {
+        ret = true;
         is_open[ch] = true;
-        if(HAL_UART_Receive_DMA(&huart3, (uint8_t *)&rx_buf[ch-1][0], MAX_SIZE) != HAL_OK)
+        if(HAL_UART_Receive_IT(&huart3, (uint8_t *)&rx_buf3, 1) != HAL_OK)
         {
           ret = false;
         }
-        ring_buffer[ch].in  = ring_buffer[ch].len - hdma_usart3_rx.Instance->NDTR;
-        ring_buffer[ch].out = ring_buffer[ch].in;
-    	}
-      break;
-
-    case _DEF_UART4:
-//    	huart4.Instance = UART4;
-//    	huart4.Init.BaudRate = baud;
-//    	huart4.Init.WordLength = UART_WORDLENGTH_8B;
-//      huart4.Init.StopBits = UART_STOPBITS_1;
-//    	huart4.Init.Parity = UART_PARITY_NONE;
-//    	huart4.Init.Mode = UART_MODE_TX_RX;
-//    	huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-//    	huart4.Init.OverSampling = UART_OVERSAMPLING_16;
-//
-//    	qbufferCreate(&ring_buffer[ch], (uint8_t *)&rx_buf[ch-1][0], MAX_SIZE);
-//
-//    	if (HAL_UART_Init(&huart4) != HAL_OK)
-//    	{
-//    	  Error_Handler();
-//    	}
-//    	else
-//    	{
-//    		ret = true;
-//        is_open[ch] = true;
-//        if(HAL_UART_Receive_DMA(&huart4, (uint8_t *)&rx_buf[ch-1][0], MAX_SIZE) != HAL_OK)
-//        {
-//          ret = false;
-//        }
-//        ring_buffer[ch].in  = ring_buffer[ch].len - hdma_uart4_rx.Instance->NDTR;
-//        ring_buffer[ch].out = ring_buffer[ch].in;
-//    	}
-      break;
-    case _DEF_UART5:
-//    	huart5.Instance = UART5;
-//    	huart5.Init.BaudRate = baud;
-//    	huart5.Init.WordLength = UART_WORDLENGTH_8B;
-//      huart5.Init.StopBits = UART_STOPBITS_1;
-//    	huart5.Init.Parity = UART_PARITY_NONE;
-//    	huart5.Init.Mode = UART_MODE_TX_RX;
-//    	huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-//    	huart5.Init.OverSampling = UART_OVERSAMPLING_16;
-//
-//    	qbufferCreate(&ring_buffer[ch], (uint8_t *)&rx_buf[ch-1][0], MAX_SIZE);
-//
-//    	if (HAL_UART_Init(&huart5) != HAL_OK)
-//    	{
-//    	  Error_Handler();
-//    	}
-//    	else
-//    	{
-//    		ret = true;
-//        is_open[ch] = true;
-//        if(HAL_UART_Receive_DMA(&huart5, (uint8_t *)&rx_buf[ch-1][0], MAX_SIZE) != HAL_OK)
-//        {
-//          ret = false;
-//        }
-//        ring_buffer[ch].in  = ring_buffer[ch].len - hdma_uart5_rx.Instance->NDTR;
-//        ring_buffer[ch].out = ring_buffer[ch].in;
-//    	}
-      break;
-
-    case _DEF_UART6:
-//    	huart6.Instance = USART6;
-//    	huart6.Init.BaudRate = baud;
-//    	huart6.Init.WordLength = UART_WORDLENGTH_8B;
-//      huart6.Init.StopBits = UART_STOPBITS_1;
-//    	huart6.Init.Parity = UART_PARITY_NONE;
-//    	huart6.Init.Mode = UART_MODE_TX_RX;
-//    	huart6.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-//    	huart6.Init.OverSampling = UART_OVERSAMPLING_16;
-//
-//    	qbufferCreate(&ring_buffer[ch], (uint8_t *)&rx_buf[ch-1][0], MAX_SIZE);
-//
-//    	if (HAL_UART_Init(&huart6) != HAL_OK)
-//    	{
-//    	  Error_Handler();
-//    	}
-//    	else
-//    	{
-//    		ret = true;
-//        is_open[ch] = true;
-//        if(HAL_UART_Receive_DMA(&huart6, (uint8_t *)&rx_buf[ch-1][0], MAX_SIZE) != HAL_OK)
-//        {
-//          ret = false;
-//        }
-//        ring_buffer[ch].in  = ring_buffer[ch].len - hdma_usart6_rx.Instance->NDTR;
-//        ring_buffer[ch].out = ring_buffer[ch].in;
-//    	}
+      }
       break;
   }
 
@@ -211,29 +91,10 @@ uint32_t uartAvailable(uint8_t ch)
       ret = cdcAvailable();
       break;
 
-//    case _DEF_UART2:
-//    	//ring_buffer[ch].in = (ring_buffer[ch].len - hdma_usart2_rx.Instance->NDTR);
-//      ret = qbufferAvailable(&ring_buffer[ch]);
-//      break;
     case _DEF_UART3:
     	ring_buffer[ch].in = (ring_buffer[ch].len - hdma_usart3_rx.Instance->NDTR);
       ret = qbufferAvailable(&ring_buffer[ch]);
       break;
-
-//    case _DEF_UART4:
-//    	ring_buffer[ch].in = (ring_buffer[ch].len - hdma_uart4_rx.Instance->NDTR);
-//      ret = qbufferAvailable(&ring_buffer[ch]);
-//      break;
-//
-//    case _DEF_UART5:
-//    	ring_buffer[ch].in = (ring_buffer[ch].len - hdma_uart5_rx.Instance->NDTR);
-//      ret = qbufferAvailable(&ring_buffer[ch]);
-//      break;
-//
-//    case _DEF_UART6:
-//    	ring_buffer[ch].in = (ring_buffer[ch].len - hdma_usart6_rx.Instance->NDTR);
-//      ret = qbufferAvailable(&ring_buffer[ch]);
-//      break;
   }
   return ret;
 }
@@ -248,23 +109,7 @@ uint8_t uartRead(uint8_t ch)
       ret = cdcRead();
       break;
 
-    case _DEF_UART2:
-    	qbufferRead(&ring_buffer[ch], &ret, 1);
-      break;
-
     case _DEF_UART3:
-    	qbufferRead(&ring_buffer[ch], &ret, 1);
-      break;
-
-    case _DEF_UART4:
-    	qbufferRead(&ring_buffer[ch], &ret, 1);
-      break;
-
-    case _DEF_UART5:
-    	qbufferRead(&ring_buffer[ch], &ret, 1);
-      break;
-
-    case _DEF_UART6:
     	qbufferRead(&ring_buffer[ch], &ret, 1);
       break;
   }
@@ -284,40 +129,8 @@ uint32_t uartWrite(uint8_t ch, uint8_t *p_data, uint32_t length)
       ret = cdcWrite(p_data, length);
       break; 
 
-    case _DEF_UART2:
-      //status = HAL_UART_Transmit(&huart2, p_data, length, 100);
-      if (status == HAL_OK)
-      {
-        ret = length;
-      }
-      break;
-
     case _DEF_UART3:
       status = HAL_UART_Transmit(&huart3, p_data, length, 100);
-      if (status == HAL_OK)
-      {
-        ret = length;
-      }
-      break;
-
-    case _DEF_UART4:
-      //status = HAL_UART_Transmit(&huart4, p_data, length, 100);
-      if (status == HAL_OK)
-      {
-        ret = length;
-      }
-      break;
-
-    case _DEF_UART5:
-      //status = HAL_UART_Transmit(&huart5, p_data, length, 100);
-      if (status == HAL_OK)
-      {
-        ret = length;
-      }
-      break;
-
-    case _DEF_UART6:
-      //status = HAL_UART_Transmit(&huart6, p_data, length, 100);
       if (status == HAL_OK)
       {
         ret = length;
@@ -343,40 +156,8 @@ uint32_t uartWriteIT(uint8_t ch, uint8_t *p_data, uint32_t length)
       }
       break;
 
-    case _DEF_UART2:
-      //status = HAL_UART_Transmit_IT(&huart2, p_data, length);
-      if (status == HAL_OK)
-      {
-        ret = length;
-      }
-      break;
-
     case _DEF_UART3:
       status = HAL_UART_Transmit_IT(&huart3, p_data, length);
-      if (status == HAL_OK)
-      {
-        ret = length;
-      }
-      break;
-
-    case _DEF_UART4:
-      //status = HAL_UART_Transmit_IT(&huart4, p_data, length);
-      if (status == HAL_OK)
-      {
-        ret = length;
-      }
-      break;
-
-    case _DEF_UART5:
-      //status = HAL_UART_Transmit_IT(&huart5, p_data, length);
-      if (status == HAL_OK)
-      {
-        ret = length;
-      }
-      break;
-
-    case _DEF_UART6:
-      //status = HAL_UART_Transmit_IT(&huart6, p_data, length);
       if (status == HAL_OK)
       {
         ret = length;
@@ -459,24 +240,8 @@ uint32_t uartGetBaud(uint8_t ch)
       ret = cdcGetBaud();
       break;
 
-    case _DEF_UART2:
-      //ret = huart2.Init.BaudRate;
-      break;
-
     case _DEF_UART3:
       ret = huart3.Init.BaudRate;
-      break;
-
-    case _DEF_UART4:
-     //ret = huart4.Init.BaudRate;
-      break;
-
-    case _DEF_UART5:
-      //ret = huart5.Init.BaudRate;
-      break;
-
-    case _DEF_UART6:
-      //ret = huart6.Init.BaudRate;
       break;
   }
 
@@ -500,17 +265,6 @@ bool uartSetBaud(uint8_t ch, uint32_t baud)
 //    	}
 //			break;
 
-//		case _DEF_UART2:
-//			//huart2.Init.BaudRate = baud;
-//    	if (HAL_UART_Init(&huart2) != HAL_OK)
-//    	{
-//    	  Error_Handler();
-//    	}else
-//    	{
-//    		ret = true;
-//    	}
-//			break;
-
     case _DEF_UART3:
 			huart3.Init.BaudRate = baud;
     	if (HAL_UART_Init(&huart3) != HAL_OK)
@@ -521,39 +275,6 @@ bool uartSetBaud(uint8_t ch, uint32_t baud)
     		ret = true;
     	}
 			break;
-
-//    case _DEF_UART4:
-//			//huart4.Init.BaudRate = baud;
-//    	//if (HAL_UART_Init(&huart4) != HAL_OK)
-//    	{
-//    	  Error_Handler();
-//    	}else
-//    	{
-//    		ret = true;
-//    	}
-//			break;
-
-//    case _DEF_UART5:
-//			//huart5.Init.BaudRate = baud;
-//    	//if (HAL_UART_Init(&huart5) != HAL_OK)
-//    	{
-//    	  Error_Handler();
-//    	}else
-//    	{
-//    		ret = true;
-//    	}
-//			break;
-//
-//    case _DEF_UART6:
-//			//huart6.Init.BaudRate = baud;
-//    	//if (HAL_UART_Init(&huart6) != HAL_OK)
-//    	{
-//    	  Error_Handler();
-//    	}else
-//    	{
-//    		ret = true;
-//    	}
-//			break;
 	}
 
 	return ret;
@@ -581,23 +302,50 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
   }
 }
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+uint8_t uart3_rx_data = 0;
+uint8_t telemetry_rx_buf[20];
+uint8_t telemetry_rx_cplt_flag;
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	//static uint32_t pre_time = 0;
+  static unsigned char cnt = 0;
 
-//  if(huart->Instance == USART2)
-//  {
-//		rxRuntimeState.callbackTime = micros() - pre_time;
-//		pre_time = micros();
-//		qbufferWrite(&ring_buffer[_DEF_UART2], (uint8_t *)&rx_buf2[0], (uint32_t)Size);
-//		rxRuntimeState.RxCallback_Flag = true;
-//
-//		HAL_UARTEx_ReceiveToIdle_DMA(&huart2, (uint8_t *)&rx_buf2[0], MAX_SIZE);
-//		__HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
-//		rxRuntimeState.uartAvalable = uartAvailable(_DEF_UART2);
-//		rxRuntimeState.RxCallback_Flag = false;
-//  }
+  if(huart->Instance == USART3)
+  {
+    HAL_UART_Receive_IT(&huart3, (uint8_t *)&rx_buf3, 1);
+    qbufferWrite(&ring_buffer[_DEF_UART3], (uint8_t *)&rx_buf3, 1);
+    qbufferRead(&ring_buffer[_DEF_UART3], (uint8_t *)&uart3_rx_data, 1);
 
+    switch(cnt)
+    {
+    case 0:
+      if(uart3_rx_data == 0x47)
+      {
+        telemetry_rx_buf[cnt] = uart3_rx_data;
+        cnt++;
+      }
+      break;
+    case 1:
+      if(uart3_rx_data == 0x53)
+      {
+        telemetry_rx_buf[cnt] = uart3_rx_data;
+        cnt++;
+      }
+      else
+        cnt = 0;
+      break;
+    case 19:
+      telemetry_rx_buf[cnt] = uart3_rx_data;
+      cnt = 0;
+      telemetry_rx_cplt_flag = 1;
+      break;
+    default:
+      telemetry_rx_buf[cnt] = uart3_rx_data;
+      cnt++;
+      break;
+    }
+
+  }
 }
 
 void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)

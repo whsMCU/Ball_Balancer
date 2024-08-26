@@ -25,6 +25,7 @@
 
 Machine machine(2, 3.125, 1.75, 3.669291339);     //(d, e, f, g) object to define the lengths of the machine
 TouchScreen ts = TouchScreen(Touch_xm, ADC_Touch_ym, ADC_Touch_xp, Touch_yp, 0);  //touch screen pins (XGND, YGND, X5V, Y5V)
+TSPoint p;
 
 //stepper motors
 AccelStepper stepperA(1, StepA_STEP, StepA_DIR);  //(driver type, STEP, DIR) Driver A
@@ -42,7 +43,7 @@ double Xoffset = 500;  //X offset for the center position of the touchpad
 double Yoffset = 500;  //Y offset for the center position of the touchpad
 
 //PID variables
-double kp = 4E-4, ki = 2E-6, kd = 7E-3;                                                       //PID constants
+//double kp = 4E-4, ki = 2E-6, kd = 7E-3;                                                       //PID constants
 double error[2] = { 0, 0 }, errorPrev[2], integr[2] = { 0, 0 }, deriv[2] = { 0, 0 }, out[2];  //PID terms for X and Y directions
 long timeI, timeII;                                                                           //variables to capture initial times
 
@@ -65,6 +66,44 @@ void DEMO(void);
 
 void SystemClock_Config(void);
 
+uint32_t pre_time = 0;
+
+static void Encode_Msg_Status(unsigned char* telemetry_tx_buf)
+{
+  telemetry_tx_buf[0] = 0x46;
+  telemetry_tx_buf[1] = 0x43;
+
+  telemetry_tx_buf[2] = 0x10;
+
+  telemetry_tx_buf[3] = (short)(p.x);
+  telemetry_tx_buf[4] = ((short)(p.x))>>8;
+
+  telemetry_tx_buf[5] = (short)(p.y);
+  telemetry_tx_buf[6] = ((short)(p.y))>>8;
+
+  telemetry_tx_buf[7] = 0x00;
+  telemetry_tx_buf[8] = 0x00;
+
+  telemetry_tx_buf[9] = 0x00;
+  telemetry_tx_buf[10] = 0x00;
+
+  telemetry_tx_buf[11] = 0x00;
+  telemetry_tx_buf[12] = 0x00;
+
+  telemetry_tx_buf[13] = 0x00;
+  telemetry_tx_buf[14] = 0x00;
+
+  telemetry_tx_buf[15] = 0x00;
+  telemetry_tx_buf[16] = 0x00;
+
+  telemetry_tx_buf[17] = 0x00;
+  telemetry_tx_buf[18] = 0x00;
+
+  telemetry_tx_buf[19] = 0xff;
+
+  for(int i=0;i<19;i++) telemetry_tx_buf[19] = telemetry_tx_buf[19] - telemetry_tx_buf[i];
+}
+
 int main(void)
 {
 	HAL_Init();
@@ -72,6 +111,8 @@ int main(void)
   SystemClock_Config();
 
   hwInit();
+
+  pre_time = micros();
 
   while (1)
   {
@@ -85,9 +126,18 @@ int main(void)
     //ellipsePattern(100, 100, 0, 20, 5);  //moves the ball in an elipse (rx, ry, start, wait, num)
     //sinusoidalPattern(50, 30, 20);  //moves ball in a sinusoidal pattern (A, B, wait)
     //figure8Pattern(200, 0, 10, 5);  //moves the ball in an elipse (r, start, wait, num)
-    DEMO(); //does all of the patterns sequentially;
+    //DEMO(); //does all of the patterns sequentially;
 
-    //cliMain();
+
+    if(micros() - pre_time >= 100000)
+    {
+        pre_time = micros();
+        Encode_Msg_Status(&telemetry_tx_buf[0]);
+        uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
+        msg_paser();
+    }
+
+    cliMain();
   }
 
 }
@@ -121,6 +171,7 @@ void hwInit(void)
 //  }
 
   cliOpen(_DEF_USB, 115200);
+  uartOpen(_DEF_UART3, 115200);
 
   // Adding the steppers to the steppersControl instance for multi stepper control
   steppers.addStepper(stepperA);
@@ -189,7 +240,7 @@ void moveTo(double hz, double nx, double ny) {
 
 //takes in an X and Y setpoint/position and moves the ball to that position
 void PID(double setpointX, double setpointY) {
-  TSPoint p = ts.getPoint();  //measure X and Y positions
+  p = ts.getPoint();  //measure X and Y positions
   //if the ball is detected (the x position will not be 0)
   if (p.x != 0) {
     detected = 1;

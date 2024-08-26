@@ -40,6 +40,7 @@
 //#include "stepper.h"
 #include "cli_gui.h"
 #include "log.h"
+#include "msg_paser.h"
 
 
 void hwInit(void);
