@@ -8,6 +8,10 @@
 #ifndef SRC_COMMON_HW_INCLUDE_UART_H_
 #define SRC_COMMON_HW_INCLUDE_UART_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "hw.h"
 
 #define UART_MAX_CH         HW_UART_MAX_CH
@@ -51,5 +55,7 @@ uint32_t uartGetBaud(uint8_t ch);
 bool uartSetBaud(uint8_t ch, uint32_t baud);
 baudRate_e lookupBaudRateIndex(uint32_t baudRate);
 
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* SRC_COMMON_HW_INCLUDE_UART_H_ */
