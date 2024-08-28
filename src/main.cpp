@@ -92,7 +92,7 @@ int main(void)
     //figure8Pattern(200, 0, 10, 5);  //moves the ball in an elipse (r, start, wait, num)
     //DEMO(); //does all of the patterns sequentially;
 
-    if(micros() - pre_time >= 100000)
+    if(micros() - pre_time >= 50000)
     {
         pre_time = micros();
         Encode_Msg_Status(&telemetry_tx_buf[0]);
