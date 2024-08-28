@@ -46,7 +46,7 @@
 #define      HW_LCD_HEIGHT          320
 
 #define _USE_HW_UART
-#define      HW_UART_MAX_CH         3
+#define      HW_UART_MAX_CH         4
 #define      HW_UART_CH_SWD         _DEF_USB
 #define      HW_UART_CH_CLI         _DEF_USB
 

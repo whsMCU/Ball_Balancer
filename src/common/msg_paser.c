@@ -112,25 +112,33 @@ void msg_paser(void)
 
         switch(telemetry_rx_buf[2])
         {
-        case 0:
+        case 0x00:
+          kp = *(float*)&telemetry_rx_buf[3];
+          ki = *(float*)&telemetry_rx_buf[7];
+          kd = *(float*)&telemetry_rx_buf[11];
+          //writeSDCard(PID_Roll_in);
+          Encode_Msg_PID_Gain(&telemetry_tx_buf[0], 0x20, kp, ki, kd);
+          uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
+          break;
+        case 0x10:
+          Encode_Msg_PID_Gain(&telemetry_tx_buf[0], 0x20, kp, ki, kd);
+          uartWriteIT(_DEF_UART1, &telemetry_tx_buf[0], 20);
+          break;
+        case 0x20:
           kp = *(float*)&telemetry_rx_buf[3];
           ki = *(float*)&telemetry_rx_buf[7];
           kd = *(float*)&telemetry_rx_buf[11];
           //writeSDCard(PID_Roll_in);
           Encode_Msg_PID_Gain(&telemetry_tx_buf[0], telemetry_rx_buf[2], kp, ki, kd);
-          uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
-          break;
-        case 10:
-          mode = *(uint8_t*)&telemetry_rx_buf[3];
-          Encode_Msg_Mode(&telemetry_tx_buf[0], telemetry_rx_buf[2], mode);
           uartWriteIT(_DEF_UART1, &telemetry_tx_buf[0], 20);
           break;
-        case 0x10:
+        case 0x12:
           switch(telemetry_rx_buf[3])
           {
           case 0:
-            Encode_Msg_PID_Gain(&telemetry_tx_buf[0], telemetry_rx_buf[3], kp, ki, kd);
-            uartWrite(_DEF_UART1, &telemetry_tx_buf[0], 20);
+            mode = *(uint8_t*)&telemetry_rx_buf[3];
+            Encode_Msg_Mode(&telemetry_tx_buf[0], telemetry_rx_buf[2], mode);
+            uartWriteIT(_DEF_UART1, &telemetry_tx_buf[0], 20);
             break;
           }
           break;

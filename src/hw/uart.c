@@ -16,7 +16,7 @@ static bool is_open[UART_MAX_CH];
 static qbuffer_t ring_buffer[UART_MAX_CH];
 static volatile uint8_t rx_buf[UART_MAX_CH-1][MAX_SIZE];
 static volatile uint8_t rx_buf2[MAX_SIZE];
-static volatile uint8_t rx_buf3[MAX_SIZE];
+static volatile uint8_t rx_buf3;
 static volatile uint8_t rx_ringbuf3[MAX_SIZE];
 
 UART_HandleTypeDef huart3;
