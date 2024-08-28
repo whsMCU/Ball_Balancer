@@ -68,42 +68,6 @@ void SystemClock_Config(void);
 
 uint32_t pre_time = 0;
 
-static void Encode_Msg_Status(unsigned char* telemetry_tx_buf)
-{
-  telemetry_tx_buf[0] = 0x46;
-  telemetry_tx_buf[1] = 0x43;
-
-  telemetry_tx_buf[2] = 0x10;
-
-  telemetry_tx_buf[3] = (short)(p.x);
-  telemetry_tx_buf[4] = ((short)(p.x))>>8;
-
-  telemetry_tx_buf[5] = (short)(p.y);
-  telemetry_tx_buf[6] = ((short)(p.y))>>8;
-
-  telemetry_tx_buf[7] = 0x00;
-  telemetry_tx_buf[8] = 0x00;
-
-  telemetry_tx_buf[9] = 0x00;
-  telemetry_tx_buf[10] = 0x00;
-
-  telemetry_tx_buf[11] = 0x00;
-  telemetry_tx_buf[12] = 0x00;
-
-  telemetry_tx_buf[13] = 0x00;
-  telemetry_tx_buf[14] = 0x00;
-
-  telemetry_tx_buf[15] = 0x00;
-  telemetry_tx_buf[16] = 0x00;
-
-  telemetry_tx_buf[17] = 0x00;
-  telemetry_tx_buf[18] = 0x00;
-
-  telemetry_tx_buf[19] = 0xff;
-
-  for(int i=0;i<19;i++) telemetry_tx_buf[19] = telemetry_tx_buf[19] - telemetry_tx_buf[i];
-}
-
 int main(void)
 {
 	HAL_Init();
@@ -128,7 +92,7 @@ int main(void)
     //figure8Pattern(200, 0, 10, 5);  //moves the ball in an elipse (r, start, wait, num)
     //DEMO(); //does all of the patterns sequentially;
 
-    if(micros() - pre_time >= 1000000)
+    if(micros() - pre_time >= 100000)
     {
         pre_time = micros();
         Encode_Msg_Status(&telemetry_tx_buf[0]);
@@ -240,6 +204,9 @@ void moveTo(double hz, double nx, double ny) {
 //takes in an X and Y setpoint/position and moves the ball to that position
 void PID(double setpointX, double setpointY) {
   p = ts.getPoint();  //measure X and Y positions
+  memcpy(&ts_point, &p, sizeof(TSPoint));
+//  ts_point.x = p.x;
+//  ts_point.y = p.y;
   //if the ball is detected (the x position will not be 0)
   if (p.x != 0) {
     detected = 1;

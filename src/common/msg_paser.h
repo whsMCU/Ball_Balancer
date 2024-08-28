@@ -14,10 +14,19 @@ extern "C" {
 
 #include "hw.h"
 
+typedef struct tspoint_s {
+    int16_t x;
+    int16_t y;
+    int16_t z;
+} tspoint_t;
+
 extern double kp, ki, kd;
+extern tspoint_t ts_point;
 extern uint8_t telemetry_tx_buf[40];
 
 void msg_paser(void);
+
+void Encode_Msg_Status(unsigned char* telemetry_tx_buf);
 
 #ifdef __cplusplus
 }

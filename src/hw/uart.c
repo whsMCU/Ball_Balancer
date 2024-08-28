@@ -17,6 +17,7 @@ static qbuffer_t ring_buffer[UART_MAX_CH];
 static volatile uint8_t rx_buf[UART_MAX_CH-1][MAX_SIZE];
 static volatile uint8_t rx_buf2[MAX_SIZE];
 static volatile uint8_t rx_buf3[MAX_SIZE];
+static volatile uint8_t rx_ringbuf3[MAX_SIZE];
 
 UART_HandleTypeDef huart3;
 
@@ -59,7 +60,7 @@ bool uartOpen(uint8_t ch, uint32_t baud)
     	huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
     	huart3.Init.OverSampling = UART_OVERSAMPLING_16;
 
-    	qbufferCreate(&ring_buffer[ch], (uint8_t *)&rx_buf3, MAX_SIZE);
+    	qbufferCreate(&ring_buffer[ch], (uint8_t *)&rx_ringbuf3, MAX_SIZE);
 
       if (HAL_UART_Init(&huart3) != HAL_OK)
       {
