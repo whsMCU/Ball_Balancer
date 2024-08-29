@@ -20,8 +20,21 @@ typedef struct tspoint_s {
     int16_t z;
 } tspoint_t;
 
+typedef enum{
+  PID_pattern = 0,
+  line_pattern,
+  triangle_pattern,
+  square_pattern,
+  pinBall_pattern,
+  ellipse_pattern,
+  sinusoidal_pattern,
+  figure8_pattern,
+  DEMO_pattern
+} pattern_TypeDef;
+
 extern double kp, ki, kd;
 extern tspoint_t ts_point;
+extern uint8_t mode;
 extern uint8_t telemetry_tx_buf[40];
 
 void msg_paser(void);

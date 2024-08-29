@@ -80,17 +80,46 @@ int main(void)
 
   while (1)
   {
-    PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
-
     //moveToPID(0, 0, 5000); //moves the ball to a position and keeps it there (X, Y, wait)
-    //linePattern(100, 0, 800, 2);  //moves the ball in a line (rx, ry, wait, num)
-    //trianglePattern(3); //moves the ball in a triangle (num)
-    //squarePattern(3);  //moves the ball in a square (num)
-    //pinBallPattern(200, 600);  //moves the ball in a pinball pattern (Y, wait)
-    //ellipsePattern(100, 100, 0, 20, 5);  //moves the ball in an elipse (rx, ry, start, wait, num)
-    //sinusoidalPattern(50, 30, 20);  //moves ball in a sinusoidal pattern (A, B, wait)
-    //figure8Pattern(200, 0, 10, 5);  //moves the ball in an elipse (r, start, wait, num)
-    //DEMO(); //does all of the patterns sequentially;
+
+    switch(mode)
+    {
+      case PID_pattern:
+        PID(0, 0);  //(X setpoint, Y setpoint) -- must be looped
+        break;
+
+      case line_pattern:
+        linePattern(100, 0, 800, 2);  //moves the ball in a line (rx, ry, wait, num)
+        break;
+
+      case triangle_pattern:
+        trianglePattern(3); //moves the ball in a triangle (num)
+        break;
+
+      case square_pattern:
+        squarePattern(3);  //moves the ball in a square (num)
+        break;
+
+      case pinBall_pattern:
+        pinBallPattern(200, 600);  //moves the ball in a pinball pattern (Y, wait)
+        break;
+
+      case ellipse_pattern:
+        ellipsePattern(100, 100, 0, 20, 5);  //moves the ball in an elipse (rx, ry, start, wait, num)
+        break;
+
+      case sinusoidal_pattern:
+        sinusoidalPattern(50, 30, 20);  //moves ball in a sinusoidal pattern (A, B, wait)
+        break;
+
+      case figure8_pattern:
+        figure8Pattern(200, 0, 10, 5);  //moves the ball in an elipse (r, start, wait, num)
+        break;
+
+      case DEMO_pattern:
+        DEMO(); //does all of the patterns sequentially;
+        break;
+    }
 
     if(micros() - pre_time >= 50000)
     {

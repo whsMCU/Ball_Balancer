@@ -122,7 +122,7 @@ void msg_paser(void)
           break;
         case 0x10:
           Encode_Msg_PID_Gain(&telemetry_tx_buf[0], 0x20, kp, ki, kd);
-          uartWriteIT(_DEF_UART1, &telemetry_tx_buf[0], 20);
+          uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
           break;
         case 0x20:
           kp = *(float*)&telemetry_rx_buf[3];
@@ -130,15 +130,63 @@ void msg_paser(void)
           kd = *(float*)&telemetry_rx_buf[11];
           //writeSDCard(PID_Roll_in);
           Encode_Msg_PID_Gain(&telemetry_tx_buf[0], telemetry_rx_buf[2], kp, ki, kd);
-          uartWriteIT(_DEF_UART1, &telemetry_tx_buf[0], 20);
+          uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
           break;
-        case 0x12:
+        case 0x30:
           switch(telemetry_rx_buf[3])
           {
-          case 0:
+          case PID_pattern:
             mode = *(uint8_t*)&telemetry_rx_buf[3];
             Encode_Msg_Mode(&telemetry_tx_buf[0], telemetry_rx_buf[2], mode);
-            uartWriteIT(_DEF_UART1, &telemetry_tx_buf[0], 20);
+            uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
+            break;
+
+          case line_pattern:
+            mode = *(uint8_t*)&telemetry_rx_buf[3];
+            Encode_Msg_Mode(&telemetry_tx_buf[0], telemetry_rx_buf[2], mode);
+            uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
+            break;
+
+          case triangle_pattern:
+            mode = *(uint8_t*)&telemetry_rx_buf[3];
+            Encode_Msg_Mode(&telemetry_tx_buf[0], telemetry_rx_buf[2], mode);
+            uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
+            break;
+
+          case square_pattern:
+            mode = *(uint8_t*)&telemetry_rx_buf[3];
+            Encode_Msg_Mode(&telemetry_tx_buf[0], telemetry_rx_buf[2], mode);
+            uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
+            break;
+
+          case pinBall_pattern:
+            mode = *(uint8_t*)&telemetry_rx_buf[3];
+            Encode_Msg_Mode(&telemetry_tx_buf[0], telemetry_rx_buf[2], mode);
+            uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
+            break;
+
+          case ellipse_pattern:
+            mode = *(uint8_t*)&telemetry_rx_buf[3];
+            Encode_Msg_Mode(&telemetry_tx_buf[0], telemetry_rx_buf[2], mode);
+            uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
+            break;
+
+          case sinusoidal_pattern:
+            mode = *(uint8_t*)&telemetry_rx_buf[3];
+            Encode_Msg_Mode(&telemetry_tx_buf[0], telemetry_rx_buf[2], mode);
+            uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
+            break;
+
+          case figure8_pattern:
+            mode = *(uint8_t*)&telemetry_rx_buf[3];
+            Encode_Msg_Mode(&telemetry_tx_buf[0], telemetry_rx_buf[2], mode);
+            uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
+            break;
+
+          case DEMO_pattern:
+            mode = *(uint8_t*)&telemetry_rx_buf[3];
+            Encode_Msg_Mode(&telemetry_tx_buf[0], telemetry_rx_buf[2], mode);
+            uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
             break;
           }
           break;
