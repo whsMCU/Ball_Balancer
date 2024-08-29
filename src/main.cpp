@@ -45,7 +45,8 @@ double Yoffset = 500;  //Y offset for the center position of the touchpad
 //PID variables
 //double kp = 4E-4, ki = 2E-6, kd = 7E-3;                                                       //PID constants
 double error[2] = { 0, 0 }, errorPrev[2], integr[2] = { 0, 0 }, deriv[2] = { 0, 0 }, out[2];  //PID terms for X and Y directions
-long timeI, timeII;                                                                           //variables to capture initial times
+long timeI, timeII;  //variables to capture initial times
+uint32_t cycleTime, deltaTime;
 
 //Other Variables
 double angToStep = 3200 / 360;  //angle to step conversion factor (steps per degree) for 16 microsteps or 3200 steps/rev
@@ -120,15 +121,15 @@ int main(void)
         DEMO(); //does all of the patterns sequentially;
         break;
     }
-
-    if(micros() - pre_time >= 50000)
+    cycleTime = micros() - pre_time;
+    if(cycleTime >= 50000)
     {
         pre_time = micros();
         Encode_Msg_Status(&telemetry_tx_buf[0]);
         uartWriteIT(_DEF_UART3, &telemetry_tx_buf[0], 20);
-        msg_paser();
+        deltaTime = micros()-pre_time;
     }
-
+    msg_paser();
     cliMain();
   }
 
